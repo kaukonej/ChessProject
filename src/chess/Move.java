@@ -18,6 +18,20 @@ public class Move {
 		return "Move [fromRow=" + fromRow + ", fromColumn=" + fromColumn + ", toRow=" + toRow + ", toColumn=" + toColumn
 				+ "]";
 	}
-	
-	
+
+	public int getFromRow() {
+		return fromRow;
+	}
+
+	public int getFromColumn() {
+		return fromColumn;
+	}
+
+	public int getToRow() {
+		return toRow;
+	}
+
+	public int getToColumn() {
+		return toColumn;
+	}
 }

@@ -11,16 +11,34 @@ public abstract class ChessPiece implements IChessPiece {
 	public abstract String type();
 
 	public Player player() {
-		// complete this
+		return owner;
 	}
 
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		// complete this
-		// if "from" space has a piece
-		// AND "to" space is empty
-		// put from piece at to space
-		// else if has opposite color piece
-		// take piece, then move
-		// else, return false
+
+		if (board[move.fromColumn][move.fromRow].player() == owner) { // if piece at coord belongs to owner of this piece
+			if (board[move.toColumn][move.toRow].player() == null) { // if move to space is empty
+				board[move.toColumn][move.toRow] = this; // set coord to this piece
+				return true;
+			} else if (board[move.toColumn][move.toRow].player() == owner.next()) { // else if coord has other person's piece
+				//takePiece(); // capture the piece
+				board[move.toColumn][move.toRow] = this; // and set coord to this piece instead
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * This method returns a Boolean value depending on the squares that 
+	 * lie strictly between the move.from and move.to squares
+	 * @param move
+	 * @param board
+	 * @return
+	 */
+	public boolean moveIsOnlyOverEmptySquares( Move move, IChessPiece[][] board) {
+		// complete this
+		return false;
 	}
 }

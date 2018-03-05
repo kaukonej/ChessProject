@@ -12,8 +12,7 @@ public class Queen extends ChessPiece {
 
 	@Override
 	public String type() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Queen";
 	}
 
 	public boolean isValidMove() {
