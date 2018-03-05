@@ -17,6 +17,8 @@ public class Pawn extends ChessPiece {
 
 	public boolean isValidMove() {
 		// must utilize method from ChessPiece, add specific functionality here
+		Move myMove = new Move(row, col, row, col + 1);
+		super.isValidMove(myMove, board)
 		return false;
 	}
 }
