@@ -5,7 +5,7 @@ import chess.Player;
 
 public class Bishop extends ChessPiece {
 
-	protected Bishop(Player player) {
+	public Bishop(Player player) {
 		super(player);
 		// TODO Auto-generated constructor stub
 	}

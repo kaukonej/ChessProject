@@ -1,11 +1,12 @@
 package Pieces;
 
 import chess.ChessPiece;
+import chess.Move;
 import chess.Player;
 
 public class Pawn extends ChessPiece {
 
-	protected Pawn(Player player) {
+	public Pawn(Player player) {
 		super(player);
 		// TODO Auto-generated constructor stub
 	}
@@ -17,8 +18,8 @@ public class Pawn extends ChessPiece {
 
 	public boolean isValidMove() {
 		// must utilize method from ChessPiece, add specific functionality here
-		Move myMove = new Move(row, col, row, col + 1);
-		super.isValidMove(myMove, board)
+		//Move myMove = new Move(row, col, row, col + 1); // how do you access coordinates
+		//return super.isValidMove(myMove, board); // how to do access the board
 		return false;
 	}
 }
