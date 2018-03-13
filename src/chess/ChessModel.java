@@ -10,6 +10,12 @@ import Pieces.Rook;
 public class ChessModel implements IChessModel {	 
 	private IChessPiece[][] board;
 	private Player player;
+	// to row
+	// to col
+	// from row
+	// from col
+	// saveFromPiece
+	//saveToPiece
 	// declare other instance variables as needed
 
 	public ChessModel() {
@@ -62,14 +68,56 @@ public class ChessModel implements IChessModel {
 		// else if piece exists
 		// check if it can move to "to" space
 		// return true if it can, but otherwise
-		return false;
+		// piece = board[][];
+		// piece.isValidMove(new Move(piece.col, piece.row, piece.))
+		
+		
+		// overloaded, not overridden
+		// called from the GUI
+		// if piece exists at from coords
+		// if board[fromrow][fromcol].isValidMove(move, board) == true (if move works for piece at from
+		// IChessPiece from piece = board[from][from]
+		// IChessPiece to piece = board[to][to]
+		
+		// boolean valid = false;
+		// YOU CANT MOVE INTO CHECK
+		// if not in check,
+		// move(move);
+		// if in check is still false
+		// set not in check
+		// valid = true
+		// if in check is true
+		// set in check
+		// valid = false;
+		// board from = frompiece
+		// board[to] = topiece
+		return false; // return valid
 	}
 	public void move(Move move) {
 		// complete this
 		// if the move is a valid move,
 			// if any pieces captured, store them somehow for later
 		// set piece at "from" to "to"
+		
+		// save from row
+		// save from col
+		// save from piece
+		// save to row
+		// save to col
+		// save to piece
+		
+		// bpard[to] = board[from]
+		// board[from] = null
 	}
+	
+	// methods to do
+	// numRows()
+	//numCols
+	//PieceAt
+	//SetNextPlayer
+	//SetPiece
+	
+	
 	public boolean inCheck(Player p) {
 		return false;
 	}

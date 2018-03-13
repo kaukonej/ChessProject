@@ -38,19 +38,22 @@ public abstract class ChessPiece implements IChessPiece {
 	
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		// complete this
+		// boolean valid = false; (allows multiple checks
+		
+		// if from != to (can't do nothing)
 		if (withinBoard(move)) {
 			if (board[move.fromColumn][move.fromRow].player() == owner) { // if piece at coord belongs to owner of this piece
 				if (board[move.toColumn][move.toRow].player() == null) { // if move to space is empty
 					//board[move.toColumn][move.toRow] = this; // set coord to this piece
-					return true;
+					return true; // valid = true
 				} else if (board[move.toColumn][move.toRow].player() == owner.next()) { // else if coord has other person's piece
 					//takePiece(); // capture the piece
 					//board[move.toColumn][move.toRow] = this; // and set coord to this piece instead
-					return true;
+					return true; // valid = true
 				}
 			}
 		}
-		return false;
+		return false; // return valid;
 	}
 
 	/**
