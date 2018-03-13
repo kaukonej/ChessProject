@@ -1,6 +1,8 @@
 package Pieces;
 
 import chess.ChessPiece;
+import chess.IChessPiece;
+import chess.Move;
 import chess.Player;
 
 public class Knight extends ChessPiece{
@@ -15,7 +17,7 @@ public class Knight extends ChessPiece{
 		return "Knight";
 	}
 
-	public boolean isValidMove() {
+	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		// must utilize method from ChessPiece, add specific functionality here
 		return false;
 	}

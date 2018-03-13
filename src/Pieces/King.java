@@ -1,6 +1,8 @@
 package Pieces;
 
 import chess.ChessPiece;
+import chess.IChessPiece;
+import chess.Move;
 import chess.Player;
 
 public class King extends ChessPiece {
@@ -15,8 +17,14 @@ public class King extends ChessPiece {
 		return "King";
 	}
 
-	public boolean isValidMove() {
+	public boolean isValidMove(Move move, IChessPiece[][] board) {
+		// boolean valid = false;
 		// must utilize method from ChessPiece, add specific functionality here
+		// if move in general is valid
+		// if toRow - fromRow == 1 && toCol == fromCol ||
+		// toCol - ffom == 1,  && to row == from
+		// to row - from == 1 && toCol - from == 1
+		// if true, valid = true
 		return false;
 	}
 }
