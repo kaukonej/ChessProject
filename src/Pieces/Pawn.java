@@ -21,9 +21,9 @@ public class Pawn extends ChessPiece {
 		boolean isValid = false;
 		if (super.isValidMove(myMove, board)) {
 			if (super.player() == Player.WHITE) { // white
-				typeMultiplier = 1; // will move down the board
+				typeMultiplier = -1; // will move down the board
 			} else {
-				typeMultiplier = -1; // will move up the board
+				typeMultiplier = 1; // will move up the board
 			}
 			
 			// move two for white only
