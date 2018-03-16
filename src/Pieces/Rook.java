@@ -7,23 +7,26 @@ import chess.Player;
 
 public class Rook extends ChessPiece {
 
-	public Rook(Player player) {
-		super(player);
-		// TODO Auto-generated constructor stub
-	}
+    public Rook(Player player) {
+        super(player);
+        // TODO Auto-generated constructor stub
+    }
 
-	@Override
-	public String type() {
-		return "Rook";
-	}
+    @Override
+    public String type() {
+        return "Rook";
+    }
 
-	public boolean isValidMove(Move move, IChessPiece[][] board) {
-		// must utilize method from ChessPiece, add specific functionality here
-		// int startrow
-		// int startcol
-		// if super isvalid
-		// if tocol fromcol are equal
-		// check if anyone in the way
-		return false;
-	}
+    public boolean isValidMove(Move myMove, IChessPiece[][] board) {
+        // must utilize method from ChessPiece, add specific functionality here
+        // if tocol fromcol are equal
+        // check if anyone in the way
+            if(super.isValidMove(myMove, board) && 
+            (myMove.fromRow == myMove.toRow || myMove.fromColumn == myMove.toColumn)) {
+                    if (moveIsOnlyOverEmptySquares(myMove, board)) {
+                    return true;
+                    }
+            }
+            return false;
+    }
 }
