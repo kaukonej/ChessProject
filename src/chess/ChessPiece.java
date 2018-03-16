@@ -41,9 +41,10 @@ public abstract class ChessPiece implements IChessPiece {
 		// boolean valid = false; (allows multiple checks
 		
 		// if from != to (can't do nothing)
+		// TODO: If not moving into check
 		if (withinBoard(move)) {
-			if (board[move.fromColumn][move.fromRow].player() == owner) { // if piece at coord belongs to owner of this piece
-				if (board[move.toColumn][move.toRow].player() == null) { // if move to space is empty
+			if (board[move.fromRow][move.fromColumn].player() == owner) { // if piece at coord belongs to owner of this piece
+				if (board[move.toRow][move.toColumn] == null) { // if move to space is empty
 					//board[move.toColumn][move.toRow] = this; // set coord to this piece
 					return true; // valid = true
 				} else if (board[move.toColumn][move.toRow].player() == owner.next()) { // else if coord has other person's piece
