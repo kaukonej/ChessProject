@@ -29,7 +29,10 @@ public class ChessModel implements IChessModel {
 		// complete this
 		isComplete = false;
 		canUndo = false;
+		board = new IChessPiece[8][8];
+		player = Player.BLACK;
 		// Special pieces for black
+		board[0][2] = null;
 		board[0][0] = new Rook(Player.BLACK);
 		board[0][1] = new Knight(Player.BLACK);
 		board[0][2] = new Bishop(Player.BLACK);
@@ -83,9 +86,10 @@ public class ChessModel implements IChessModel {
 
 		if (board[move.fromRow][move.fromColumn].player() == player) {
 			if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
-				if (gameState == GameState.NOT_IN_CHECK) {
-					move(move);
-				}
+				//if (gameState == GameState.NOT_IN_CHECK) {
+					player = player.next();
+					return true;
+				//}
 			}
 		}
 
@@ -117,9 +121,9 @@ public class ChessModel implements IChessModel {
 		// set piece at "from" to "to"
 
 		if (isValidMove(move)) {
-			undoBoard3 = undoBoard2;
-			undoBoard2 = undoBoard1;
-			undoBoard1 = board;
+//			undoBoard3 = undoBoard2;
+//			undoBoard2 = undoBoard1;
+//			undoBoard1 = board;
 			// maybe store captured piece if captured?
 			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 			board[move.fromRow][move.fromColumn] = null;
