@@ -116,7 +116,7 @@ public class ChessPanel extends JPanel {
 	private void displayBoard() {
 		// complete this
 		// Should update board with correct pieces
-		for (int row = 7; row >= 0; row--) {
+		for (int row = 0; row <= 7; row++) {
 			for (int col = 0; col <= 7; col++) {
 				if (game.pieceAt(row, col) == null) {
 					board[row][col].setIcon(iconBlank); // TODO set black or white depending on row and column.
@@ -177,6 +177,8 @@ public class ChessPanel extends JPanel {
 								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
 								board[fromRow][fromCol].setIcon(null);
 								//displayBoard();
+								revalidate();
+								repaint();
 							}
 
 							//								if(game.inCheck(game.currentPlayer().next()))
