@@ -83,16 +83,17 @@ public class ChessModel implements IChessModel {
 		// return true if it can, but otherwise
 		// piece = board[][];
 		// piece.isValidMove(new Move(piece.col, piece.row, piece.))
-
-		if (board[move.fromRow][move.fromColumn].player() == player) {
-			if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
-				//if (gameState == GameState.NOT_IN_CHECK) {
-					player = player.next();
-					return true;
-				//}
-			}
+		if (board[move.fromRow][move.fromColumn] != null) {
+			//if (board[move.fromRow][move.fromColumn].player() == player) {
+				if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
+					//if (gameState == GameState.NOT_IN_CHECK) {
+						player = player.next();
+						return true;
+					//}
+				}
+			//}
 		}
-
+		
 		// overloaded, not overridden
 		// called from the GUI
 		// if piece exists at from coords
