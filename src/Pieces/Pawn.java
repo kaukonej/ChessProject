@@ -27,16 +27,17 @@ public class Pawn extends ChessPiece {
 			}
 			
 			// move two for white only
-			if(super.player() == Player.WHITE && myMove.fromRow == 1 && myMove.toRow == myMove.fromRow + (2 * typeMultiplier)) {
+			if(super.player() == Player.WHITE && myMove.fromRow == 6 && myMove.toRow == myMove.fromRow - 2 
+					&& myMove.fromColumn == myMove.toColumn) {
 				isValid = true;
 			}	
 			// move two for black only
-			else if(super.player() == Player.BLACK && myMove.fromRow == 7 && myMove.fromRow + (2*typeMultiplier) == myMove.toRow
+			else if(super.player() == Player.BLACK && myMove.fromRow == 1 && myMove.toRow == myMove.fromRow + 2
 					&& myMove.fromColumn == myMove.toColumn) {
 				isValid = true;
 			}
 			// move one
-			if(myMove.fromRow + typeMultiplier == myMove.toRow) {
+			if(myMove.fromRow == myMove.toRow - typeMultiplier) {
 				// if only moving forward
 				if(myMove.fromColumn == myMove.toColumn) {
 					isValid = true;
