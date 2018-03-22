@@ -84,14 +84,14 @@ public class ChessModel implements IChessModel {
 		// piece = board[][];
 		// piece.isValidMove(new Move(piece.col, piece.row, piece.))
 		if (board[move.fromRow][move.fromColumn] != null) {
-			//if (board[move.fromRow][move.fromColumn].player() == player) {
+			if (board[move.fromRow][move.fromColumn].player() == player) {
 				if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
 					//if (gameState == GameState.NOT_IN_CHECK) {
 						player = player.next();
 						return true;
 					//}
 				}
-			//}
+			}
 		}
 		
 		// overloaded, not overridden

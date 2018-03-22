@@ -44,17 +44,16 @@ public abstract class ChessPiece implements IChessPiece {
 		// TODO: If not moving into check
 		if (withinBoard(move)) {
 			if (board[move.fromRow][move.fromColumn] != null) {
-				if (board[move.fromRow][move.fromColumn].player() == owner) { // if piece at coord belongs to owner of this piece
-					if (board[move.toRow][move.toColumn] == null) { // if move to space is empty
-						//board[move.toColumn][move.toRow] = this; // set coord to this piece
-						return true; // valid = true
-					} else if (board[move.toColumn][move.toRow].player() == owner.next()) { // else if coord has other person's piece
-						//takePiece(); // capture the piece
-						//board[move.toColumn][move.toRow] = this; // and set coord to this piece instead
-						return true; // valid = true
+				//if (board[move.fromRow][move.fromColumn].player() == owner) { // if piece at coord belongs to owner of this piece
+				if (board[move.toRow][move.toColumn] != null) { // if move to space is empty
+					if (board[move.toRow][move.toColumn].player() != owner) {
+						return true;
 					}
+				} else if (board[move.toRow][move.toColumn] == null) {
+					return true;
 				}
 			}
+			//}
 
 		}
 		return false; // return valid;
@@ -68,87 +67,50 @@ public abstract class ChessPiece implements IChessPiece {
 	 * @return
 	 */
 	public boolean moveIsOnlyOverEmptySquares(Move move, IChessPiece[][] board) {
-		// Vertical Moves
-		if(move.fromRow == move.toRow) {
+		boolean isValid = true;
+		int absDistanceCol = Math.abs(move.fromColumn - move.toColumn);
+		int absDistanceRow = Math.abs(move.fromRow - move.toRow);
+		//Vertical Moves
+		if(absDistanceCol == 0) {
 			int pom = 1;
-			if(move.fromColumn > move.toColumn)
-			{
+			if(move.fromRow > move.toRow) {
 				pom = -1;
 			}
-			int moveLength = Math.abs(move.fromRow - move.toRow);
-			for(int i = 0; i < moveLength; i++) {
-				if(board[move.fromColumn][move.fromRow + i*pom] != null) {
-					if(move.fromRow + move.toRow == i*pom)
-					{
-						return true;
-					}
-					return false;
+			for(int i = 1; i <= absDistanceRow - 1; i++) {
+				if(board[move.fromRow + i*pom][move.fromColumn] != null) {
+					isValid = false;
 				}
 			}
 		}
 
 		// Horizontal Moves
-		if(move.fromColumn == move.toColumn) {
+		if(absDistanceRow == 0) {
 			int pom = 1;
-			if(move.fromColumn > move.toColumn)
-			{
+			if(move.fromColumn > move.toColumn) {
 				pom = -1;
 			}
-			int moveLength = Math.abs(move.fromColumn - move.toColumn);
-			for(int i = 0; i < moveLength; i++) {
-				if(board[move.fromColumn][move.fromColumn + i*pom] != null) {
-					if(move.fromColumn + move.toColumn == i*pom)
-					{
-						return true;
-					}
-					return false;
+			for(int i = 1; i <= absDistanceCol - 1; i++) {
+				if(board[move.fromRow][move.fromColumn + i*pom] != null) {
+					isValid = false;
 				}
 			}
 		}
-		// Diagonal Moves
-		// Get distance between spaces
-		// TODO finish this for King, Queen, and Bishop this part of the method is NOT done
-		int pom = 1;
-		if(move.fromColumn > move.toColumn || move.fromRow > move.toRow)
-		{
-			pom = -1;
-		}
-		int moveLength = Math.abs((move.fromColumn - move.toColumn + move.fromRow - move.toRow)/2);
-		for(int i = 0; i < moveLength; i++) {
-			if(board[move.fromColumn][move.fromColumn + i*pom] != null) {
-				return false;
+
+		if (absDistanceCol == absDistanceRow) {
+			int pomRow = 1;
+			int pomCol = 1;
+			if(move.fromRow > move.toRow) {
+				pomRow = -1;
+			}
+			if(move.fromColumn > move.toColumn) {
+				pomCol = -1;
+			}
+			for (int i = 1; i <= absDistanceCol - 1; i++) {
+				if(board[move.fromRow + i*pomRow][move.fromColumn + i*pomCol] != null) {
+					isValid = false;
+				}
 			}
 		}
-		return true;
+		return isValid;
 	}
 }
-
-////Vertical Moves
-//		if(move.fromColumn == move.toColumn) {
-//			int pom = 1;
-//			if(move.fromColumn > move.toColumn)
-//			{
-//				pom = -1;
-//			}
-//			int moveLength = Math.abs(move.fromRow - move.toRow);
-//			for(int i = 1; i < moveLength - 1; i++) {
-//				if(board[move.fromRow + i*pom][move.fromColumn] != null) {
-//					return false;
-//				}
-//			}
-//		}
-//
-//		// Horizontal Moves
-//		if(move.fromRow == move.toRow) {
-//			int pom = 1;
-//			if(move.fromColumn > move.toColumn)
-//			{
-//				pom = -1;
-//			}
-//			int moveLength = Math.abs(move.fromColumn - move.toColumn);
-//			for(int i = 1; i < moveLength - 1; i++) {
-//				if(board[move.fromRow][move.fromColumn + i*pom] != null) {
-//					return false;
-//				}
-//			}
-//		}
