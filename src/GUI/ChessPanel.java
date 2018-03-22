@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -59,7 +60,7 @@ public class ChessPanel extends JPanel {
 	public ChessPanel() {
 		game = new ChessModel();
 
-		iconBlank = new ImageIcon("blank.jpg"); // get a blank image later
+		iconBlank = new ImageIcon("blank.png"); // get a blank image later
 		iconWPawn = new ImageIcon ("wPawn.png");
 		iconWKnight = new ImageIcon ("wKnight.png");
 		iconWRook = new ImageIcon ("wRook.png");
@@ -166,17 +167,18 @@ public class ChessPanel extends JPanel {
 						if(board[row][col] != null && click%2 == 0) {
 							fromRow = row;
 							fromCol = col;
+							board[fromRow][fromCol].setBackground(Color.CYAN);
 						}
 						else if(click%2 == 1) {
 							toRow = row;
 							toCol = col;
 							Move m = new Move(fromRow,fromCol,toRow,toCol);
+							board[fromRow][fromCol].setBackground(null);
 
 							if(game.isValidMove(m)) {
 								game.move(m);
 								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-								board[fromRow][fromCol].setIcon(null);
-								//displayBoard();
+								board[fromRow][fromCol].setIcon(iconBlank);
 								revalidate();
 								repaint();
 							}

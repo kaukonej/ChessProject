@@ -16,6 +16,7 @@ public class ChessModel implements IChessModel {
 	private IChessPiece[][] undoBoard2;
 	private IChessPiece[][] undoBoard3;
 	private boolean canUndo;
+	// TODO: Undo method will probably need these variables
 	// to row
 	// to col
 	// from row
@@ -75,52 +76,19 @@ public class ChessModel implements IChessModel {
 	}
 	
 	public boolean isValidMove(Move move) {
-		// complete this
-		// if piece at "from" does not exist
-		// return false
-		// else if piece exists
-		// check if it can move to "to" space
-		// return true if it can, but otherwise
-		// piece = board[][];
-		// piece.isValidMove(new Move(piece.col, piece.row, piece.))
 		if (board[move.fromRow][move.fromColumn] != null) {
-			if (board[move.fromRow][move.fromColumn].player() == player) {
+			//if (board[move.fromRow][move.fromColumn].player() == player) { TODO: For some reason this line breaks everything. Be careful.
 				if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
 					//if (gameState == GameState.NOT_IN_CHECK) {
 						player = player.next();
 						return true;
 					//}
 				}
-			}
+			//}
 		}
-		
-		// overloaded, not overridden
-		// called from the GUI
-		// if piece exists at from coords
-		// if board[fromrow][fromcol].isValidMove(move, board) == true (if move works for piece at from
-		// IChessPiece from piece = board[from][from]
-		// IChessPiece to piece = board[to][to]
-
-		// boolean valid = false;
-		// YOU CANT MOVE INTO CHECK
-		// if not in check,
-		// move(move);
-		// if in check is still false
-		// set not in check
-		// valid = true
-		// if in check is true
-		// set in check
-		// valid = false;
-		// board from = frompiece
-		// board[to] = topiece
-		return false; // return valid
+		return false;
 	}
 	public void move(Move move) {
-		// complete this
-		// if the move is a valid move,
-		// if any pieces captured, store them somehow for later
-		// set piece at "from" to "to"
-
 		if (isValidMove(move)) {
 //			undoBoard3 = undoBoard2;
 //			undoBoard2 = undoBoard1;
