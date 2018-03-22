@@ -25,6 +25,9 @@ public class King extends ChessPiece {
 		// toCol - ffom == 1,  && to row == from
 		// to row - from == 1 && toCol - from == 1
 		// if true, valid = true
+		if (Math.abs(move.fromRow - move.toRow) <= 1 && Math.abs(move.fromColumn - move.toColumn) <= 1) {
+			return true;
+		}
 		return false;
 	}
 }

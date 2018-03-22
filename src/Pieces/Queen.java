@@ -18,8 +18,11 @@ public class Queen extends ChessPiece {
 	}
 
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
-		// must utilize method from ChessPiece, add specific functionality here
-		// queen is just a bishop and a rook, if they can move a queen can do it
+		Rook testRook = new Rook(super.player());
+		Bishop testBishop = new Bishop(super.player());
+		if (testRook.isValidMove(move, board) || testBishop.isValidMove(move, board)) {
+			return true;
+		}
 		return false;
 	}
 }

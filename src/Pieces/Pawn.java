@@ -25,7 +25,7 @@ public class Pawn extends ChessPiece {
 			} else {
 				typeMultiplier = 1; // will move up the board
 			}
-			
+
 			// move two for white only
 			if(super.player() == Player.WHITE && myMove.fromRow == 6 && myMove.toRow == myMove.fromRow - 2 
 					&& myMove.fromColumn == myMove.toColumn) {
@@ -43,13 +43,17 @@ public class Pawn extends ChessPiece {
 					isValid = true;
 				}	
 				// if trying to capture left diagonal
-				else if(myMove.toColumn == myMove.fromColumn - 1 
-						&& board[myMove.toRow][myMove.toColumn].player() == super.player().next()) {
-					isValid = true;
-				}	
-				// if trying to capture right diagonal
-				else if(myMove.toColumn == myMove.fromColumn + 1 
-					&& board[myMove.toRow][myMove.toColumn].player() == super.player().next()) {
+				else if(myMove.fromColumn == myMove.toColumn - 1 
+						&& board[myMove.toRow][myMove.toColumn] != null) {
+					if (board[myMove.toRow][myMove.toColumn].player() == super.player().next()) {
+						isValid = true;
+					}
+				}
+			}	
+			// if trying to capture right diagonal
+			else if(myMove.fromColumn == myMove.toColumn + 1 
+					&& board[myMove.toRow][myMove.toColumn] != null) {
+				if (board[myMove.toRow][myMove.toColumn].player() == super.player().next()) {
 					isValid = true;
 				}
 			}
