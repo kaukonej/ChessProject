@@ -107,7 +107,7 @@ public class ChessPanel extends JPanel {
 		loc.insets.bottom = 15;
 		loc.insets.top = 15;
 		add(currentTurnIcon, loc);
-		
+
 		displayBoard();
 		revalidate();
 		repaint();
@@ -169,9 +169,9 @@ public class ChessPanel extends JPanel {
 							fromRow = row;
 							fromCol = col;
 							board[fromRow][fromCol].setBackground(Color.CYAN);
-							
+
 							boolean canFindMove = false;
-							
+
 							for (int checkCol = 0; checkCol <= 7; checkCol++) {
 								for (int checkRow = 0; checkRow <= 7; checkRow++) {
 									Move canMove = new Move(fromRow, fromCol, checkRow, checkCol);
@@ -186,7 +186,7 @@ public class ChessPanel extends JPanel {
 								if (game.getState() == GameState.IN_CHECK) {
 									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from staying in check.");
 								} else {
-									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s).");
+									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s) or it is not your turn.");
 								}
 								click = 1;
 							}
@@ -197,23 +197,23 @@ public class ChessPanel extends JPanel {
 									board[r][c].setBackground(null);
 								}
 							}
-							
+
 							toRow = row;
 							toCol = col;
 							Move m = new Move(fromRow,fromCol,toRow,toCol);
-							
+
 							if(game.isValidMove(m)) {
 								game.move(m);
 								//if (game.getState() == GameState.NOT_IN_CHECK) {
-									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-									board[fromRow][fromCol].setIcon(iconBlank);
+								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
+								board[fromRow][fromCol].setIcon(iconBlank);
 								//}
-								
+
 								if (game.isComplete()) {
 									JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
 									// reset();
 								}
-								
+
 								//displayBoard();
 								//revalidate();
 								//repaint();
@@ -223,6 +223,13 @@ public class ChessPanel extends JPanel {
 							//									JOptionPane.showMessageDialog(null,"You are about to be bopped");
 						}
 					}
+			if (game.isComplete()) {
+				for(int row = 0; row <= 7; row++) {
+					for(int col = 0; col <= 7; col++) {
+						board[row][col].setEnabled(false);
+					}
+				}
+			}
 			click ++;
 
 

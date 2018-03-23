@@ -80,11 +80,11 @@ public class ChessModel implements IChessModel {
 	public boolean isValidMove(Move move) {
 		if (board[move.fromRow][move.fromColumn] != null) {
 			//if (board[move.fromRow][move.fromColumn].player() == player) { //TODO: For some reason this line breaks everything. Be careful.
-			if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
-				if (!inCheckAfterMove(move)) {
-					return true;
+				if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
+					if (!inCheckAfterMove(move)) {
+						return true;
+					}
 				}
-			}
 			//}
 		}
 		return false;
@@ -106,16 +106,12 @@ public class ChessModel implements IChessModel {
 	}
 
 	public void move(Move move) {
-		if (inCheckAfterMove(move)) {
-			//JOptionPane.showMessageDialog(new JPanel(), "If you do that, only death awaits you. Try something else.");
-		} else {
-			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-			board[move.fromRow][move.fromColumn] = null;
+		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+		board[move.fromRow][move.fromColumn] = null;
 
-			player = player.next();
-			if (inCheckmate(player)) {
-				isComplete = true;
-			}
+		player = player.next();
+		if (inCheckmate(player)) {
+			isComplete = true;
 		}
 	}
 
@@ -191,7 +187,7 @@ public class ChessModel implements IChessModel {
 	public boolean isComplete() {
 		return isComplete;
 	}
-	
+
 	public boolean inCheckmate(Player p) {
 		int fromRow;
 		int fromCol;
