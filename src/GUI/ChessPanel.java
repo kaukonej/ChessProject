@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -82,38 +83,53 @@ public class ChessPanel extends JPanel {
 
 		for (int row = 0; row < 8; row++) { // 0, 1, 2, 3, 4, 5, 6, 7 (8 total)
 			for (int col = 0; col < 8; col++) {
-				board[row][col] = new JButton("(" + col + ", " + row + ")");
+				board[row][col] = new JButton();
+				//board[row][col] = new JButton("(" + col + ", " + row + ")");
+				board[row][col].setPreferredSize(new Dimension(80, 80));
 				board[row][col].addActionListener(new ButtonListener());
 				// Add each element to the GridBagLayout
 				loc = new GridBagConstraints();
 				loc.gridx = col;
 				loc.gridy = row;
-				loc.insets.bottom = 10;
-				loc.insets.top = 10;
+				loc.insets.bottom = 0;
+				loc.insets.top = 0;
 				add(board[row][col], loc);				
 			}
 		}
 
-		currentTurnLabel = new JLabel("Next:");
+		currentTurnLabel = new JLabel("Current Turn:");
 		loc.gridx = 0;
 		loc.gridy = 9;
-		loc.insets.bottom = 15;
-		loc.insets.top = 15;
+		loc.insets.bottom = 0;
+		loc.insets.top = 0;
 		add(currentTurnLabel, loc);
 
 		currentTurnIcon = new JLabel("",iconWPawn,SwingConstants.CENTER);
 		loc.gridx = 1;
 		loc.gridy = 9;
-		loc.insets.bottom = 15;
-		loc.insets.top = 15;
+		loc.insets.bottom = 0;
+		loc.insets.top = 0;
 		add(currentTurnIcon, loc);
 
 		displayBoard();
+		updateBackground();
 		revalidate();
 		repaint();
 	}
 
 
+	private void updateBackground() {
+		for (int col = 0; col <= 7; col++) {
+			for (int row = 0; row <= 7; row++) {
+				if ((row % 2 == 0 && col % 2 == 0) || (row % 2 == 1 && col % 2 == 1)) {
+					board[row][col].setBackground(Color.WHITE);
+				} else {
+					board[row][col].setBackground(Color.BLACK);
+				}
+			}
+		}
+	}
+	
 	// method that updates the board
 	private void displayBoard() {
 		// complete this
@@ -177,7 +193,11 @@ public class ChessPanel extends JPanel {
 									Move canMove = new Move(fromRow, fromCol, checkRow, checkCol);
 									if (game.isValidMove(canMove)) {
 										canFindMove = true;
-										board[checkRow][checkCol].setBackground(Color.ORANGE);
+										if (game.isPieceInDanger(game.currentPlayer(), canMove)) {
+											board[canMove.toRow][canMove.toColumn].setBackground(Color.RED);
+										} else {
+											board[checkRow][checkCol].setBackground(Color.ORANGE);
+										}
 									}
 								}
 							}
@@ -185,18 +205,21 @@ public class ChessPanel extends JPanel {
 								board[fromRow][fromCol].setBackground(null);
 								if (game.getState() == GameState.IN_CHECK) {
 									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from staying in check.");
+									updateBackground();
 								} else {
 									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s) or it is not your turn.");
+									updateBackground();
 								}
 								click = 1;
 							}
 						}
 						else if(click%2 == 1) {
-							for (int r = 0; r <= 7; r++) {
-								for (int c = 0; c <= 7; c++) {
-									board[r][c].setBackground(null);
-								}
-							}
+//							for (int r = 0; r <= 7; r++) {
+//								for (int c = 0; c <= 7; c++) {
+//									board[r][c].setBackground(null);
+//								}
+//							}
+							updateBackground();
 
 							toRow = row;
 							toCol = col;
@@ -207,6 +230,12 @@ public class ChessPanel extends JPanel {
 								//if (game.getState() == GameState.NOT_IN_CHECK) {
 								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
 								board[fromRow][fromCol].setIcon(iconBlank);
+								if (game.currentPlayer() == Player.BLACK) {
+									currentTurnIcon.setIcon(iconBPawn);
+								} else {
+									currentTurnIcon.setIcon(iconWPawn);
+								}
+								
 								//}
 
 								if (game.isComplete()) {

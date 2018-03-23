@@ -1,5 +1,4 @@
 package GUI;
-
 import javax.swing.JFrame;
 
 public class ChessGUI {
@@ -9,8 +8,12 @@ public class ChessGUI {
 	  frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	  ChessPanel panel = new ChessPanel();
-	  frame.getContentPane().add(panel);
+	  //frame.getContentPane().add(panel);
+	  frame.setContentPane(panel);
 
+	  frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+	  frame.setUndecorated(true);
+	  
 	  frame.pack();
 	  frame.setVisible(true);
 	 }
