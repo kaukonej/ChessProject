@@ -20,7 +20,7 @@ public class Pawn extends ChessPiece {
 		if (super.isValidMove(myMove, board)) {
 			// If it's a white piece, use this set of logic.
 			if (super.player() == Player.WHITE) {
-				if(myMove.fromRow == 6 && myMove.toRow == myMove.fromRow - 2 && myMove.fromColumn == myMove.toColumn) {
+				if(myMove.fromRow == 6 && myMove.toRow == myMove.fromRow - 2 && myMove.fromColumn == myMove.toColumn && board[myMove.toRow][myMove.toColumn] == null) {
 					isValid = true;
 				} else if (myMove.fromRow == myMove.toRow + 1) {
 					// if only moving forward
@@ -41,7 +41,7 @@ public class Pawn extends ChessPiece {
 					}
 				}
 			} else if (super.player() == Player.BLACK) { // If it's a black piece, basically do the same thing, but backwards.
-				if(myMove.fromRow == 1 && myMove.toRow == myMove.fromRow + 2 && myMove.fromColumn == myMove.toColumn) {
+				if(myMove.fromRow == 1 && myMove.toRow == myMove.fromRow + 2 && myMove.fromColumn == myMove.toColumn && board[myMove.toRow][myMove.toColumn] == null) {
 					isValid = true;
 				} else if(myMove.fromRow == myMove.toRow - 1) {
 					// if only moving forward

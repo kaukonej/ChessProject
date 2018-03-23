@@ -20,8 +20,10 @@ public class Queen extends ChessPiece {
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		Rook testRook = new Rook(super.player());
 		Bishop testBishop = new Bishop(super.player());
-		if (testRook.isValidMove(move, board) || testBishop.isValidMove(move, board)) {
-			return true;
+		if (super.isValidMove(move, board)) {
+			if (testRook.isValidMove(move, board) || testBishop.isValidMove(move, board)) {
+				return true;
+			}
 		}
 		return false;
 	}

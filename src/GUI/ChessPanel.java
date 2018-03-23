@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import chess.ChessModel;
+import chess.ChessModel.GameState;
 import chess.Move;
 import chess.Player;
 
@@ -106,7 +107,7 @@ public class ChessPanel extends JPanel {
 		loc.insets.bottom = 15;
 		loc.insets.top = 15;
 		add(currentTurnIcon, loc);
-		//		
+		
 		displayBoard();
 		revalidate();
 		repaint();
@@ -168,19 +169,54 @@ public class ChessPanel extends JPanel {
 							fromRow = row;
 							fromCol = col;
 							board[fromRow][fromCol].setBackground(Color.CYAN);
+							
+							boolean canFindMove = false;
+							
+							for (int checkCol = 0; checkCol <= 7; checkCol++) {
+								for (int checkRow = 0; checkRow <= 7; checkRow++) {
+									Move canMove = new Move(fromRow, fromCol, checkRow, checkCol);
+									if (game.isValidMove(canMove)) {
+										canFindMove = true;
+										board[checkRow][checkCol].setBackground(Color.ORANGE);
+									}
+								}
+							}
+							if (!canFindMove) {
+								board[fromRow][fromCol].setBackground(null);
+								if (game.getState() == GameState.IN_CHECK) {
+									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from staying in check.");
+								} else {
+									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s).");
+								}
+								click = 1;
+							}
 						}
 						else if(click%2 == 1) {
+							for (int r = 0; r <= 7; r++) {
+								for (int c = 0; c <= 7; c++) {
+									board[r][c].setBackground(null);
+								}
+							}
+							
 							toRow = row;
 							toCol = col;
 							Move m = new Move(fromRow,fromCol,toRow,toCol);
-							board[fromRow][fromCol].setBackground(null);
-
+							
 							if(game.isValidMove(m)) {
 								game.move(m);
-								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-								board[fromRow][fromCol].setIcon(iconBlank);
-								revalidate();
-								repaint();
+								//if (game.getState() == GameState.NOT_IN_CHECK) {
+									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
+									board[fromRow][fromCol].setIcon(iconBlank);
+								//}
+								
+								if (game.isComplete()) {
+									JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
+									// reset();
+								}
+								
+								//displayBoard();
+								//revalidate();
+								//repaint();
 							}
 
 							//								if(game.inCheck(game.currentPlayer().next()))

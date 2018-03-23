@@ -21,8 +21,10 @@ public class Knight extends ChessPiece{
 		// must utilize method from ChessPiece, add specific functionality here
 		int absDistanceCol = Math.abs(move.fromColumn - move.toColumn);
 		int absDistanceRow = Math.abs(move.fromRow - move.toRow);
-		if (move.fromColumn != move.toColumn && move.fromRow != move.toRow && absDistanceCol <= 2 && absDistanceRow <= 2 && absDistanceCol != absDistanceRow) {
-			return true;
+		if (super.isValidMove(move, board)) {
+			if (move.fromColumn != move.toColumn && move.fromRow != move.toRow && absDistanceCol <= 2 && absDistanceRow <= 2 && absDistanceCol != absDistanceRow) {
+				return true;
+			}
 		}
 		return false;
 	}
