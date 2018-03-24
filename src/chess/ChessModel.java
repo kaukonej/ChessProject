@@ -136,45 +136,63 @@ public class ChessModel implements IChessModel {
 		} else {
 			opponentType = Player.WHITE;
 		}
-
+		
+		for(int c = 0; c< 7; c++)
+			for( int r = 0; r < 7; r++)
+					if(board[r][c] != null )
+						if(board[r][c].player() == opponentType) { //if enemy player
+							fromCol = c; 
+							fromRow = r;
+							
+							Move test = new Move(fromRow, fromCol, move.toRow,move.toColumn);
+							//make a new move testing each piece if it can move on the piece you just moved
+							
+							if(board[r][c].isValidMove(test, board))
+								return true;
+						}
+							
+		return false; //if none of their pieces can get you than it isn't in danger
+						
+						
+						
 		// TODO: Redo this method. Have it actually try moving the piece there, and then see if it's a valid move.
 		// If it is a valid move, undo the move you just made, and return true. If the opponent cannot reach you, return false.
 		//check board for black/white king, save
-		for (int c = 0; c <= 7; c++) {
-			for (int r = 0; r <= 7; r++) {
-				if (board[r][c] != null) {
-					if (board[r][c].player() == opponentType) {// && board[r][c].player() == p) {
-						fromCol = c;
-						fromRow = r;
-						// if the enemy piece can get to where you're trying to go
-
-						// if enemy is of type pawn
-						// r and c and enemy piece's coordinates
-						if (board[r][c].type().equals("Pawn")) {
-							// enemy pawn can't capture forward
-							if (c == move.toColumn) {
-								return false;
-							}
-							// but it can capture diagonal right
-							// if one col right, one row up, and opponent is white, or one col right, one row down, and opponent is black
-							if ((move.toColumn == c + 1 && move.toRow == r - 1 && opponentType == Player.WHITE) || (move.toColumn == c + 1 && move.toRow == r + 1 && opponentType == Player.BLACK)){
-								return true;
-								// as well as diagonal left
-							} else if ((move.toColumn == c - 1 && move.toRow == r - 1 && opponentType == Player.WHITE) || (move.toColumn == c - 1 && move.toRow == r + 1 && opponentType == Player.BLACK)) {
-								return true;
-							}
-						} else {
-							Move newMove = new Move(fromRow, fromCol, move.toRow, move.toColumn);
-							if (isValidMove(newMove)) {
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
+//		for (int c = 0; c <= 7; c++) {
+//			for (int r = 0; r <= 7; r++) {
+//				if (board[r][c] != null) {
+//					if (board[r][c].player() == opponentType) {// && board[r][c].player() == p) {
+//						fromCol = c;
+//						fromRow = r;
+//						// if the enemy piece can get to where you're trying to go
+//
+//						// if enemy is of type pawn
+//						// r and c and enemy piece's coordinates
+//						if (board[r][c].type().equals("Pawn")) {
+//							// enemy pawn can't capture forward
+//							if (c == move.toColumn) {
+//								return false;
+//							}
+//							// but it can capture diagonal right
+//							// if one col right, one row up, and opponent is white, or one col right, one row down, and opponent is black
+//							if ((move.toColumn == c + 1 && move.toRow == r - 1 && opponentType == Player.WHITE) || (move.toColumn == c + 1 && move.toRow == r + 1 && opponentType == Player.BLACK)){
+//								return true;
+//								// as well as diagonal left
+//							} else if ((move.toColumn == c - 1 && move.toRow == r - 1 && opponentType == Player.WHITE) || (move.toColumn == c - 1 && move.toRow == r + 1 && opponentType == Player.BLACK)) {
+//								return true;
+//							}
+//						} else {
+//							Move newMove = new Move(fromRow, fromCol, move.toRow, move.toColumn);
+//							if (isValidMove(newMove)) {
+//								return true;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return false;
+}
 
 	public enum GameState {
 		IN_CHECK, NOT_IN_CHECK;
