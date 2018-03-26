@@ -24,18 +24,8 @@ public class ChessModel implements IChessModel {
 	private int prevToRow;
 	private IChessPiece lastFromPiece;
 	private IChessPiece lastToPiece;
-	// TODO: Undo method will probably need these variables
-	// to row
-	// to col
-	// from row
-	// from col
-	// saveFromPiece
-	//saveToPiece
-	// declare other instance variables as needed
 
 	public ChessModel() {
-		// board is board[x][y] because that makes sense
-		// complete this
 		isComplete = false;
 		board = new IChessPiece[8][8];
 		player = Player.WHITE;
@@ -53,8 +43,8 @@ public class ChessModel implements IChessModel {
 		board[7][0] = new Rook(Player.WHITE);
 		board[7][1] = new Knight(Player.WHITE);
 		board[7][2] = new Bishop(Player.WHITE);
-		board[7][3] = new King(Player.WHITE);
-		board[7][4] = new Queen(Player.WHITE);
+		board[7][4] = new King(Player.WHITE);
+		board[7][3] = new Queen(Player.WHITE);
 		board[7][5] = new Bishop(Player.WHITE);
 		board[7][6] = new Knight(Player.WHITE);
 		board[7][7] = new Rook(Player.WHITE);
@@ -78,6 +68,250 @@ public class ChessModel implements IChessModel {
 		board[6][7] = new Pawn(Player.WHITE);
 	}
 
+	// Checks if a given move is valid with the current game board
+	public boolean isValidMove(Move move) {
+		// The piece you are moving must exist
+		if (board[move.fromRow][move.fromColumn] != null) {
+			// It must belong to you (You can't move your opponent's pieces)
+			//if (board[move.fromRow][move.fromColumn].player() == player) { //TODO: For some reason this line breaks everything. Be careful.
+			// Check if the move is valid for the piece at the given coordinates on the board
+			if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
+				// Make sure the move doesn't put themselves in check
+				if (!inCheckAfterMove(move)) {
+					return true;
+				}
+			}
+			//}
+		}
+		return false;
+	}
+
+	/*
+	 * Checks to see if, after a given move, the current player will be in check.
+	 */
+	private boolean inCheckAfterMove(Move move) {
+		boolean inCheckAfterMove = false;
+		// Save piece in "to" tile, and then move "from" to "to" tile.
+		IChessPiece tempTo = board[move.toRow][move.toColumn];
+		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+		board[move.fromRow][move.fromColumn] = null;
+
+		// If the current player is in check, method will return true
+		if (inCheck(player)) {
+			inCheckAfterMove = true;
+		}
+		// Undo the move that was made, and return true.
+		board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
+		board[move.toRow][move.toColumn] = tempTo;
+		return inCheckAfterMove;
+	}
+
+	/*
+	 * Move a piece from point A to point B, and check if the player is in checkmate. Also save the move so it may be undone.
+	 * @see chess.IChessModel#move(chess.Move)
+	 */
+	public void move(Move move) {
+		saveMove(move);
+		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+		board[move.fromRow][move.fromColumn] = null;
+		player = player.next();
+		if (inCheckmate(player)) {
+			isComplete = true;
+		}
+	}
+
+	/*
+	 * Saves the coordinates of the last move.
+	 */
+	public void saveMove(Move move)
+	{
+		prevFromCol = move.fromColumn;
+		prevFromRow = move.fromRow;
+		lastFromPiece = board[move.fromRow][move.fromColumn];
+		prevToCol = move.toColumn;
+		prevToRow = move.toRow;
+		lastToPiece = board[move.toRow][move.toColumn];
+	}
+
+	/*
+	 * Undo the last move.
+	 */
+	
+	public void promote(int piece, Move m) {
+		if(piece == 0) 
+			board[m.toRow][m.toColumn] = new Rook(player.next());
+		
+		else if(piece == 1)
+			board[m.toRow][m.toColumn] = new Knight(player.next());
+		
+		else if(piece == 2)
+			board[m.toRow][m.toColumn] = new Bishop(player.next());
+		
+		else if(piece == 3)
+			
+			board[m.toRow][m.toColumn] = new Queen(player.next());
+	}
+	
+	
+	public void undo() {
+		board[prevFromRow][prevFromCol] = lastFromPiece;
+		board[prevToRow][prevToCol] = lastToPiece;
+	}
+
+	/*
+	 * Check to see if a given player is in check.
+	 * @see chess.IChessModel#inCheck(chess.Player)
+	 */
+	public boolean inCheck(Player p) {
+		Player opponentType;
+		int toCol = 0;
+		int toRow = 0;
+		int fromCol = 0;
+		int fromRow = 0;
+
+		// Sets the type of pieces to look for based on the passed-in player.
+		if (p == Player.WHITE) {
+			opponentType = Player.BLACK;
+		} else {
+			opponentType = Player.WHITE;
+		}
+
+		// Check board for black/white king, save coordinates
+		for (int c = 0; c <= 7; c++) {
+			for (int r = 0; r <= 7; r++) {
+				if (board[r][c] != null) {
+					if (board[r][c].type().equals("King") && board[r][c].player() == p) {
+						toCol = c;
+						toRow = r;
+					}
+				}
+			}
+		}
+
+		// Search board for pieces
+		for (int c = 0; c <= 7; c++) {
+			for (int r = 0; r <= 7; r++) {
+				if (board[r][c] != null) {
+					if (board[r][c].player() == opponentType) {
+						fromCol = c;
+						fromRow = r;
+						// See if any opponent piece can capture your king
+						Move checkMove = new Move(fromRow, fromCol, toRow, toCol);
+						if (isValidMove(checkMove)) {
+							// If it's a valid move, the king is in check.
+							gameState = GameState.IN_CHECK;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		// If nothing is found, player must not be in check.
+		gameState = GameState.NOT_IN_CHECK;
+		return false;
+	}
+
+	/*
+	 * Checks to see if a given player is in checkmate.
+	 */
+	public boolean inCheckmate(Player p) {
+		int fromRow;
+		int fromCol;
+		// If a move cannot be found, then the player is in checkmate.
+		boolean canFindMove = false;
+		// Check the whole board for pieces belonging to the player.
+		for(int row = 0; row <= 7; row++) {
+			for(int col = 0; col <= 7; col++) {
+				if (board[row][col] != null) {
+					if (board[row][col].player() == p) {
+						fromRow = row;
+						fromCol = col;
+						// Try to move the found piece literally everywhere on the board.
+						for (int r = 0; r <= 7; r++) {
+							for (int c = 0; c <= 7; c++) {
+								Move checkMove = new Move(fromRow, fromCol, r, c);
+								// If any of these moves may be taken, then the player is not checkmated.
+								if (isValidMove(checkMove)) {
+									canFindMove = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return !canFindMove;
+	}
+	
+	/*
+	 * Checks if a given move will put a piece in danger.
+	 */
+	public boolean inDangerAfterMove(Player p, Move move)
+	{
+		Player opponentType;
+		boolean isValid = false;
+
+		if (p == Player.WHITE) {
+			opponentType = Player.BLACK;
+		} else {
+			opponentType = Player.WHITE;
+		}
+
+		for(int c = 0; c <= 7; c++) { // Look for opponent pieces
+			for( int r = 0; r <= 7; r++) {
+				if(board[r][c] != null ) { // If a piece exists at the coordinates
+					if(board[r][c].player() == opponentType) { // If piece belongs to the enemy player
+						if(board[move.fromRow][move.fromColumn].isValidMove(move, board)) { // If your piece can move to the "to" coords
+							saveMove(move);
+							move(move);
+							// Test if enemy piece can reach your piece after moving.
+							Move test = new Move(r, c, move.toRow, move.toColumn);
+							if (isValidMove(test)) {
+								isValid = true;
+							}
+							undo(); // Undo your piece's move
+						}
+					}
+				}
+			}
+		}
+		player = p;
+		return isValid; // If none of their pieces can get you than it isn't in danger.
+	}
+
+	/*
+	 * Do AI stuff
+	 */
+	public void aiTurn()
+	{
+		if(inCheckmate(Player.BLACK))
+		{
+			//getOutOfCheck
+
+		}
+
+		if(isPieceInDanger(Player.BLACK))
+		{
+			//movePieceToSafety
+
+		}
+
+		if(canTakePiece(Player.BLACK))
+		{
+			//takePiece
+
+		}
+
+		if(canPutOpponentInCheck(Player.BLACK))
+		{
+			//putOpponentInCheck
+
+		}
+	}
+
+	/*
+	 * Checks if any piece belonging to a given player is in danger.
+	 */
 	private boolean isPieceInDanger (Player p) {
 		Player opponentType;
 		int toCol = 0;
@@ -120,266 +354,11 @@ public class ChessModel implements IChessModel {
 				}
 			}
 		}
+		player = p;
 		return false;
 	}
 
-	public boolean isPieceInDanger(Player p, Move move)
-	{
-		Player opponentType;
-		int toCol = 0;
-		int toRow = 0;
-		int fromCol = 0;
-		int fromRow = 0;
-
-		if (p == Player.WHITE) {
-			opponentType = Player.BLACK;
-		} else {
-			opponentType = Player.WHITE;
-		}
-		
-		for(int c = 0; c< 7; c++)
-			for( int r = 0; r < 7; r++)
-					if(board[r][c] != null )
-						if(board[r][c].player() == opponentType) { //if enemy player
-							fromCol = c; 
-							fromRow = r;
-							
-							Move test = new Move(fromRow, fromCol, move.toRow,move.toColumn);
-							//make a new move testing each piece if it can move on the piece you just moved
-							
-							if(board[r][c].isValidMove(test, board))
-								return true;
-						}
-							
-		return false; //if none of their pieces can get you than it isn't in danger
-						
-						
-						
-		// TODO: Redo this method. Have it actually try moving the piece there, and then see if it's a valid move.
-		// If it is a valid move, undo the move you just made, and return true. If the opponent cannot reach you, return false.
-		//check board for black/white king, save
-//		for (int c = 0; c <= 7; c++) {
-//			for (int r = 0; r <= 7; r++) {
-//				if (board[r][c] != null) {
-//					if (board[r][c].player() == opponentType) {// && board[r][c].player() == p) {
-//						fromCol = c;
-//						fromRow = r;
-//						// if the enemy piece can get to where you're trying to go
-//
-//						// if enemy is of type pawn
-//						// r and c and enemy piece's coordinates
-//						if (board[r][c].type().equals("Pawn")) {
-//							// enemy pawn can't capture forward
-//							if (c == move.toColumn) {
-//								return false;
-//							}
-//							// but it can capture diagonal right
-//							// if one col right, one row up, and opponent is white, or one col right, one row down, and opponent is black
-//							if ((move.toColumn == c + 1 && move.toRow == r - 1 && opponentType == Player.WHITE) || (move.toColumn == c + 1 && move.toRow == r + 1 && opponentType == Player.BLACK)){
-//								return true;
-//								// as well as diagonal left
-//							} else if ((move.toColumn == c - 1 && move.toRow == r - 1 && opponentType == Player.WHITE) || (move.toColumn == c - 1 && move.toRow == r + 1 && opponentType == Player.BLACK)) {
-//								return true;
-//							}
-//						} else {
-//							Move newMove = new Move(fromRow, fromCol, move.toRow, move.toColumn);
-//							if (isValidMove(newMove)) {
-//								return true;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		return false;
-}
-
-	public enum GameState {
-		IN_CHECK, NOT_IN_CHECK;
-	}
-
-
-
-	public boolean isValidMove(Move move) {
-		if (board[move.fromRow][move.fromColumn] != null) {
-			//if (board[move.fromRow][move.fromColumn].player() == player) { //TODO: For some reason this line breaks everything. Be careful.
-			if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
-				if (!inCheckAfterMove(move)) {
-					return true;
-				}
-			}
-			//}
-		}
-		return false;
-	}
-
-	private boolean inCheckAfterMove(Move move) {
-		boolean inCheckAfterMove = false;
-
-		IChessPiece tempTo = board[move.toRow][move.toColumn];
-		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-		board[move.fromRow][move.fromColumn] = null;
-
-		if (inCheck(player)) {
-			inCheckAfterMove = true;
-		}
-		board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
-		board[move.toRow][move.toColumn] = tempTo;
-		return inCheckAfterMove;
-	}
-
-	public void move(Move move) {
-		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-		board[move.fromRow][move.fromColumn] = null;
-		saveMove(move);
-		player = player.next();
-		if (inCheckmate(player)) {
-			isComplete = true;
-		}
-	}
-	public void saveMove(Move move)
-	{
-		prevFromCol = move.fromColumn;
-		prevFromRow = move.fromRow;
-		lastFromPiece = board[move.fromRow][move.fromColumn];
-		prevToCol = move.toColumn;
-		prevToRow = move.toRow;
-		lastFromPiece = board[move.fromRow][move.fromColumn];
-	}
-	public void undo() {
-		board[prevFromRow][prevFromCol] = lastFromPiece;
-		board[prevToRow][prevToCol] = lastToPiece;
-	}
-
-	//TODO SetPiece??????
-
-	public boolean inCheck(Player p) {
-		Player opponentType;
-		int toCol = 0;
-		int toRow = 0;
-		int fromCol = 0;
-		int fromRow = 0;
-
-		if (p == Player.WHITE) {
-			opponentType = Player.BLACK;
-		} else {
-			opponentType = Player.WHITE;
-		}
-
-		//check board for black/white king, save
-		for (int c = 0; c <= 7; c++) {
-			for (int r = 0; r <= 7; r++) {
-				if (board[r][c] != null) {
-					if (board[r][c].type().equals("King") && board[r][c].player() == p) {
-						toCol = c;
-						toRow = r;
-					}
-				}
-			}
-		}
-
-		// search board for pieces
-		for (int c = 0; c <= 7; c++) {
-			for (int r = 0; r <= 7; r++) {
-				if (board[r][c] != null) {
-					if (board[r][c].player() == opponentType) {
-						fromCol = c;
-						fromRow = r;
-						// make a move with from for the pieces, and to coords are the king's location
-						Move checkMove = new Move(fromRow, fromCol, toRow, toCol);
-						if (isValidMove(checkMove)) {
-							// if it's a valid move, the king is in check.
-							// TODO: Set gamestate to IN_CHECK
-							gameState = GameState.IN_CHECK;
-							return true;
-						}
-					}
-				}
-			}
-		}
-		gameState = GameState.NOT_IN_CHECK;
-		return false;
-	}
-	public Player currentPlayer() {
-		// complete this
-		return player;
-	}
-	public int numRows() {
-		// complete this
-		return 8;
-	}
-	public int numColumns() {
-		// complete this
-		return 8;
-	}
-	public IChessPiece pieceAt( int row, int col ) { // parameter was originally "Square s"
-		return board[row][col];
-	}
-	@Override
-	public boolean isComplete() {
-		return isComplete;
-	}
-
-	public boolean inCheckmate(Player p) {
-		int fromRow;
-		int fromCol;
-		boolean canFindMove = false;
-		for(int row = 0; row <= 7; row++) {
-			for(int col = 0; col <= 7; col++) {
-				if (board[row][col] != null) {
-					if (board[row][col].player() == p) {
-						fromRow = row;
-						fromCol = col;
-
-						for (int r = 0; r <= 7; r++) {
-							for (int c = 0; c <= 7; c++) {
-								Move checkMove = new Move(fromRow, fromCol, r, c);
-								if (isValidMove(checkMove)) {
-									canFindMove = true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return !canFindMove;
-	}
-
-	public boolean getComplete() {
-		return isComplete();
-	}
-
-	public GameState getState() {
-		return gameState;
-	}
-
-	public void aiTurn()
-	{
-		if(inCheckmate(Player.BLACK))
-		{
-			//getOutOfCheck
-
-		}
-
-		if(isPieceInDanger(Player.BLACK))
-		{
-			//movePieceToSafety
-
-		}
-
-		if(canTakePiece(Player.BLACK))
-		{
-			//takePiece
-
-		}
-
-		if(canPutOpponentInCheck(Player.BLACK))
-		{
-			//putOpponentInCheck
-
-		}
-	}
+	// TODO: Promotion, setPiece
 
 	public boolean canTakePiece(Player p)
 	{
@@ -391,5 +370,36 @@ public class ChessModel implements IChessModel {
 		return false;
 	}
 
-	// add other public or helper methods as needed
+	public enum GameState {
+		IN_CHECK, NOT_IN_CHECK;
+	}
+
+	public Player currentPlayer() {
+		return player;
+	}
+
+	public int numRows() {
+		return 8;
+	}
+
+	public int numColumns() {
+		return 8;
+	}
+
+	public IChessPiece pieceAt( int row, int col ) {
+		return board[row][col];
+	}
+
+	@Override
+	public boolean isComplete() {
+		return isComplete;
+	}
+
+	public boolean getComplete() {
+		return isComplete();
+	}
+
+	public GameState getState() {
+		return gameState;
+	}
 }
