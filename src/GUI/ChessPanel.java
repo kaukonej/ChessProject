@@ -49,20 +49,17 @@ public class ChessPanel extends JPanel {
 
 	private ChessModel game;
 
-	int fromRow;
-	int fromCol;
-	int toRow;
-	int toCol;
-	int click;
+	private int fromRow;
+	private int fromCol;
+	private int toRow;
+	private int toCol;
+	private int click;
 
-	// declare other instance variables as needed
-
-	private ButtonListener buttonListener = new ButtonListener();
+	private boolean displayCoordinates = false;
 
 	public ChessPanel() {
 		game = new ChessModel();
 
-		iconBlank = new ImageIcon("blank.png"); // get a blank image later
 		iconWPawn = new ImageIcon ("wPawn.png");
 		iconWKnight = new ImageIcon ("wKnight.png");
 		iconWRook = new ImageIcon ("wRook.png");
@@ -84,7 +81,10 @@ public class ChessPanel extends JPanel {
 		for (int row = 0; row < 8; row++) { // 0, 1, 2, 3, 4, 5, 6, 7 (8 total)
 			for (int col = 0; col < 8; col++) {
 				board[row][col] = new JButton();
-				//board[row][col] = new JButton("(" + col + ", " + row + ")");
+				if (displayCoordinates) { // Display coordinates of each tile?
+					board[row][col] = new JButton("(" + col + ", " + row + ")");
+				}
+				// Set size of each tile, and add a listener so it can be clicked
 				board[row][col].setPreferredSize(new Dimension(80, 80));
 				board[row][col].addActionListener(new ButtonListener());
 				// Add each element to the GridBagLayout
@@ -97,7 +97,8 @@ public class ChessPanel extends JPanel {
 			}
 		}
 
-		currentTurnLabel = new JLabel("Current Turn:");
+		// Create a label and icon to display whose turn it currently is
+		currentTurnLabel = new JLabel("Turn:");
 		loc.gridx = 0;
 		loc.gridy = 9;
 		loc.insets.bottom = 0;
@@ -111,13 +112,15 @@ public class ChessPanel extends JPanel {
 		loc.insets.top = 0;
 		add(currentTurnIcon, loc);
 
+		// Add all the icons to the board
 		displayBoard();
+		// Make the tiles black or white
 		updateBackground();
-		revalidate();
-		repaint();
 	}
 
-
+	/*
+	 * Make tiles either black or white, like a chessboard.
+	 */
 	private void updateBackground() {
 		for (int col = 0; col <= 7; col++) {
 			for (int row = 0; row <= 7; row++) {
@@ -129,71 +132,76 @@ public class ChessPanel extends JPanel {
 			}
 		}
 	}
-	
-	// method that updates the board
+
+	/*
+	 * Updates the icons on the GUI to reflect the pieces on the game board.
+	 */
 	private void displayBoard() {
-		// complete this
-		// Should update board with correct pieces
+		// For each row and column, check what the piece there is.
 		for (int row = 0; row <= 7; row++) {
 			for (int col = 0; col <= 7; col++) {
-				if (game.pieceAt(row, col) == null) {
-					board[row][col].setIcon(iconBlank); // TODO set black or white depending on row and column.
-				}
-				else if (game.pieceAt(row, col).player() == Player.WHITE) {
-					if (game.pieceAt(row, col).type() == "Pawn") {
-						board[row][col].setIcon(iconWPawn);
-					} else if (game.pieceAt(row, col).type() == "Bishop") {
-						board[row][col].setIcon(iconWBishop);
-					} else if (game.pieceAt(row, col).type() == "Knight") {
-						board[row][col].setIcon(iconWKnight);
-					} else if (game.pieceAt(row, col).type() == "King") {
-						board[row][col].setIcon(iconWKing);
-					} else if (game.pieceAt(row, col).type() == "Queen") {
-						board[row][col].setIcon(iconWQueen);
-					} else if (game.pieceAt(row, col).type() == "Rook") {
-						board[row][col].setIcon(iconWRook);
+				if (game.pieceAt(row, col) != null) {
+					if (game.pieceAt(row, col).player() == Player.WHITE) {
+						if (game.pieceAt(row, col).type() == "Pawn") {
+							board[row][col].setIcon(iconWPawn);
+						} else if (game.pieceAt(row, col).type() == "Bishop") {
+							board[row][col].setIcon(iconWBishop);
+						} else if (game.pieceAt(row, col).type() == "Knight") {
+							board[row][col].setIcon(iconWKnight);
+						} else if (game.pieceAt(row, col).type() == "King") {
+							board[row][col].setIcon(iconWKing);
+						} else if (game.pieceAt(row, col).type() == "Queen") {
+							board[row][col].setIcon(iconWQueen);
+						} else if (game.pieceAt(row, col).type() == "Rook") {
+							board[row][col].setIcon(iconWRook);
+						}
+					} else if (game.pieceAt(row, col).player() == Player.BLACK){
+						if (game.pieceAt(row, col).type() == "Pawn") {
+							board[row][col].setIcon(iconBPawn);
+						} else if (game.pieceAt(row, col).type() == "Bishop") {
+							board[row][col].setIcon(iconBBishop);
+						} else if (game.pieceAt(row, col).type() == "Knight") {
+							board[row][col].setIcon(iconBKnight);
+						} else if (game.pieceAt(row, col).type() == "King") {
+							board[row][col].setIcon(iconBKing);
+						} else if (game.pieceAt(row, col).type() == "Queen") {
+							board[row][col].setIcon(iconBQueen);
+						} else if (game.pieceAt(row, col).type() == "Rook") {
+							board[row][col].setIcon(iconBRook);
+						}
 					}
-				} else if (game.pieceAt(row, col).player() == Player.BLACK){
-					if (game.pieceAt(row, col).type() == "Pawn") {
-						board[row][col].setIcon(iconBPawn);
-					} else if (game.pieceAt(row, col).type() == "Bishop") {
-						board[row][col].setIcon(iconBBishop);
-					} else if (game.pieceAt(row, col).type() == "Knight") {
-						board[row][col].setIcon(iconBKnight);
-					} else if (game.pieceAt(row, col).type() == "King") {
-						board[row][col].setIcon(iconBKing);
-					} else if (game.pieceAt(row, col).type() == "Queen") {
-						board[row][col].setIcon(iconBQueen);
-					} else if (game.pieceAt(row, col).type() == "Rook") {
-						board[row][col].setIcon(iconBRook);
-					}
 				}
+				else if(game.pieceAt(row, col) == null) {
+					board[row][col].setIcon(iconBlank);
+				}
+
 			}
 		}
 	}
 
-	// add other helper methods as needed
-
-	// inner class that represents action listener for buttons
+	// An ActionListener inner class for buttons
 	private class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
+			// Check button board for which button was pressed
 			for(int row = 0; row <= 7; row++)
 				for(int col = 0; col <= 7; col++)
 					if(board[row][col] == event.getSource()) {
+						// If first click, save coordinates, and change color to show selected
 						if(board[row][col] != null && click%2 == 0) {
 							fromRow = row;
 							fromCol = col;
 							board[fromRow][fromCol].setBackground(Color.CYAN);
 
 							boolean canFindMove = false;
-
+							// Check all the spots the selected piece could potentially move
 							for (int checkCol = 0; checkCol <= 7; checkCol++) {
 								for (int checkRow = 0; checkRow <= 7; checkRow++) {
 									Move canMove = new Move(fromRow, fromCol, checkRow, checkCol);
+									// If piece can move there but can be taken, color tile red. Otherwise, color orange.
 									if (game.isValidMove(canMove)) {
 										canFindMove = true;
-										if (game.isPieceInDanger(game.currentPlayer(), canMove)) {
+										if (game.inDangerAfterMove(game.currentPlayer(), canMove)) {
 											board[canMove.toRow][canMove.toColumn].setBackground(Color.RED);
 										} else {
 											board[checkRow][checkCol].setBackground(Color.ORANGE);
@@ -201,57 +209,68 @@ public class ChessPanel extends JPanel {
 									}
 								}
 							}
+							// If a move cannot be found for the selected piece, let the user know why
 							if (!canFindMove) {
+								// Set color
 								board[fromRow][fromCol].setBackground(null);
 								if (game.getState() == GameState.IN_CHECK) {
-									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from staying in check.");
-									updateBackground();
+									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from being in check.");
 								} else {
 									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s) or it is not your turn.");
-									updateBackground();
 								}
+								updateBackground();
+								// Set click to one again, so player can immediately choose another tile.
 								click = 1;
 							}
 						}
+						// If second click
 						else if(click%2 == 1) {
-//							for (int r = 0; r <= 7; r++) {
-//								for (int c = 0; c <= 7; c++) {
-//									board[r][c].setBackground(null);
-//								}
-//							}
 							updateBackground();
 
 							toRow = row;
 							toCol = col;
+							// Make a move to see if the selected piece can move to the selected coordinates
 							Move m = new Move(fromRow,fromCol,toRow,toCol);
 
+							// If the piece can move there, move it
 							if(game.isValidMove(m)) {
 								game.move(m);
-								//if (game.getState() == GameState.NOT_IN_CHECK) {
-								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-								board[fromRow][fromCol].setIcon(iconBlank);
+								// TODO: Remove these change icon calls, use displayBoard() instead
+								if(game.pieceAt(row, col).type() == "Pawn" && (m.toRow == 0 || m.toRow == 7)){
+									int piece;
+									String pieceType = JOptionPane.showInputDialog(null, "What peice would you like?"
+											+ "Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+									while(pieceType.contains("[a-zA-Z]") || pieceType == null) {
+										pieceType = JOptionPane.showInputDialog(null, "Please enter a valid number,"
+												+ "unable to continue otherwise, Rook = 0, Knight = 1, Bishop = 2, Queen = 4");
+	
+									}
+									
+									piece = Integer.parseInt(pieceType);
+									
+									if(!pieceType.contains("[a-zA-Z]+") && piece >= 0 && piece <=3) 									
+										game.promote(piece, m);						
+									
+										
+								}
+								
+								displayBoard();
+								// Set Current Turn icon to the correct color
 								if (game.currentPlayer() == Player.BLACK) {
 									currentTurnIcon.setIcon(iconBPawn);
 								} else {
 									currentTurnIcon.setIcon(iconWPawn);
 								}
-								
-								//}
 
+								// If the game is complete, let the player know someone has won the game
 								if (game.isComplete()) {
 									JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
-									// reset();
+									// TODO: Call some sort of reset() method, needs to be made
 								}
-
-								//displayBoard();
-								//revalidate();
-								//repaint();
 							}
-
-							//								if(game.inCheck(game.currentPlayer().next()))
-							//									JOptionPane.showMessageDialog(null,"You are about to be bopped");
 						}
 					}
+			// If the game is over, disable all the buttons until the game is reset.
 			if (game.isComplete()) {
 				for(int row = 0; row <= 7; row++) {
 					for(int col = 0; col <= 7; col++) {
@@ -260,17 +279,6 @@ public class ChessPanel extends JPanel {
 				}
 			}
 			click ++;
-
-
-
-			// complete this
-			// If button is pressed, get x and y if and only if there is something at that coordinate.
-			// when next button is pressed, get x and y if and only if there is something at that coordinate, and if there is check if it's a valid move (for that specific piece)
-			// if it is a valid move, do the move, and update the board
-			// if a player is in check or checkmate, show message, take appropriate action
-			// if move happens, swap turn and change label
-
 		}
 	}
 }
-
