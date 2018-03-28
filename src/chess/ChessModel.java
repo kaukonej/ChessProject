@@ -136,23 +136,6 @@ public class ChessModel implements IChessModel {
 	/*
 	 * Undo the last move.
 	 */
-	
-	public void promote(int piece, Move m) {
-		if(piece == 0) 
-			board[m.toRow][m.toColumn] = new Rook(player.next());
-		
-		else if(piece == 1)
-			board[m.toRow][m.toColumn] = new Knight(player.next());
-		
-		else if(piece == 2)
-			board[m.toRow][m.toColumn] = new Bishop(player.next());
-		
-		else if(piece == 3)
-			
-			board[m.toRow][m.toColumn] = new Queen(player.next());
-	}
-	
-	
 	public void undo() {
 		board[prevFromRow][prevFromCol] = lastFromPiece;
 		board[prevToRow][prevToCol] = lastToPiece;
