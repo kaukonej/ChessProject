@@ -98,7 +98,7 @@ public class ChessPanel extends JPanel {
 		}
 
 		// Create a label and icon to display whose turn it currently is
-		currentTurnLabel = new JLabel("Turn:");
+		currentTurnLabel = new JLabel("Current Turn:");
 		loc.gridx = 0;
 		loc.gridy = 9;
 		loc.insets.bottom = 0;
@@ -171,9 +171,6 @@ public class ChessPanel extends JPanel {
 						}
 					}
 				}
-				else if(game.pieceAt(row, col) == null) {
-					board[row][col].setIcon(iconBlank);
-				}
 
 			}
 		}
@@ -236,25 +233,8 @@ public class ChessPanel extends JPanel {
 							if(game.isValidMove(m)) {
 								game.move(m);
 								// TODO: Remove these change icon calls, use displayBoard() instead
-								if(game.pieceAt(row, col).type() == "Pawn" && (m.toRow == 0 || m.toRow == 7)){
-									int piece;
-									String pieceType = JOptionPane.showInputDialog(null, "What peice would you like?"
-											+ "Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
-									while(pieceType.contains("[a-zA-Z]") || pieceType == null) {
-										pieceType = JOptionPane.showInputDialog(null, "Please enter a valid number,"
-												+ "unable to continue otherwise, Rook = 0, Knight = 1, Bishop = 2, Queen = 4");
-	
-									}
-									
-									piece = Integer.parseInt(pieceType);
-									
-									if(!pieceType.contains("[a-zA-Z]+") && piece >= 0 && piece <=3) 									
-										game.promote(piece, m);						
-									
-										
-								}
-								
-								displayBoard();
+								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
+								board[fromRow][fromCol].setIcon(iconBlank);
 								// Set Current Turn icon to the correct color
 								if (game.currentPlayer() == Player.BLACK) {
 									currentTurnIcon.setIcon(iconBPawn);
