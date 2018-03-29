@@ -171,7 +171,8 @@ public class ChessPanel extends JPanel {
 						}
 					}
 				}
-
+				else
+					board[row][col].setIcon(iconBlank);
 			}
 		}
 	}
@@ -231,10 +232,34 @@ public class ChessPanel extends JPanel {
 
 							// If the piece can move there, move it
 							if(game.isValidMove(m)) {
-								game.move(m);
-								// TODO: Remove these change icon calls, use displayBoard() instead
-								board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-								board[fromRow][fromCol].setIcon(iconBlank);
+								
+								if(game.pieceAt(fromRow, fromCol).type().equals("Pawn") && 
+										(toRow == 0 || toRow == 7)){
+									
+										String input = JOptionPane.showInputDialog(null, "PROMOTION!! which piece" +
+									"Would you like? Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+										
+										if(!input.contains("[a-zA-Z]")) {
+											int piece = Integer.parseInt(input);
+											
+											while(piece <0 || piece > 3) {
+												input = JOptionPane.showInputDialog(null, "Game cannot continue without" +
+											"a valid choice, Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+												
+												if(piece >=0 && piece <= 3)												
+													piece = Integer.parseInt(input);
+											}
+											game.promote(piece, m);
+										}
+										
+										
+									
+									
+								}
+								else
+									game.move(m);
+								
+								displayBoard();
 								// Set Current Turn icon to the correct color
 								if (game.currentPlayer() == Player.BLACK) {
 									currentTurnIcon.setIcon(iconBPawn);
