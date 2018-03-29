@@ -123,6 +123,24 @@ public class ChessModel implements IChessModel {
 	/*
 	 * Saves the coordinates of the last move.
 	 */
+	
+	// promotes players pawn
+	public void promote(int piece, Move m) {
+		saveMove(m);
+		board[m.fromRow][m.fromColumn]= null;
+		
+		if(piece == 0)
+			board[m.toRow][m.toColumn] = new Rook(player);
+		else if(piece == 1)
+			board[m.toRow][m.toColumn] = new Knight(player);
+		else if(piece == 2)
+			board[m.toRow][m.toColumn] = new Bishop(player);
+		else if(piece == 3)
+			board[m.toRow][m.toColumn] = new Queen(player);
+		
+		player = player.next();
+	}
+	
 	public void saveMove(Move move)
 	{
 		prevFromCol = move.fromColumn;
