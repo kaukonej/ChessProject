@@ -6,9 +6,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -25,7 +27,7 @@ public class ChessPanel extends JPanel {
 	private JButton[][] board;
 	private ChessModel model;
 
-	private JMenuItem newGameItem;
+	private JMenuItem resetItem;
 	private JMenuItem quitItem;
 
 	private JLabel currentTurnLabel;
@@ -57,8 +59,15 @@ public class ChessPanel extends JPanel {
 
 	private boolean displayCoordinates = false;
 
-	public ChessPanel() {
+	public ChessPanel(JMenuItem panelQuitItem, JMenuItem 
+			panelResetItem) {
 		game = new ChessModel();
+
+		quitItem = panelQuitItem;
+		resetItem = panelResetItem;
+
+		quitItem.addActionListener(new ButtonListener());
+		resetItem.addActionListener(new ButtonListener()); 
 
 		iconWPawn = new ImageIcon ("wPawn.png");
 		iconWKnight = new ImageIcon ("wKnight.png");
@@ -140,7 +149,9 @@ public class ChessPanel extends JPanel {
 		// For each row and column, check what the piece there is.
 		for (int row = 0; row <= 7; row++) {
 			for (int col = 0; col <= 7; col++) {
-				if (game.pieceAt(row, col) != null) {
+				if (game.pieceAt(row, col) == null) {
+					board[row][col].setIcon(null);
+				} else {
 					if (game.pieceAt(row, col).player() == Player.WHITE) {
 						if (game.pieceAt(row, col).type() == "Pawn") {
 							board[row][col].setIcon(iconWPawn);
@@ -171,8 +182,7 @@ public class ChessPanel extends JPanel {
 						}
 					}
 				}
-				else
-					board[row][col].setIcon(iconBlank);
+
 			}
 		}
 	}
@@ -181,109 +191,126 @@ public class ChessPanel extends JPanel {
 	private class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
-			// Check button board for which button was pressed
-			for(int row = 0; row <= 7; row++)
-				for(int col = 0; col <= 7; col++)
-					if(board[row][col] == event.getSource()) {
-						// If first click, save coordinates, and change color to show selected
-						if(board[row][col] != null && click%2 == 0) {
-							fromRow = row;
-							fromCol = col;
-							board[fromRow][fromCol].setBackground(Color.CYAN);
+			JComponent comp = (JComponent) event.getSource();
+			if (comp == resetItem) {
+				game.reset();
+				displayBoard();
+				currentTurnIcon.setIcon(iconWPawn);
+			} else if (comp == quitItem) {
+				System.exit(1);
+			} else {
+				// Check button board for which button was pressed
+				for(int row = 0; row <= 7; row++)
+					for(int col = 0; col <= 7; col++)
+						if(board[row][col] == event.getSource()) {
+							// If first click, save coordinates, and change color to show selected
+							if(board[row][col] != null && click%2 == 0) {
+								fromRow = row;
+								fromCol = col;
+								board[fromRow][fromCol].setBackground(Color.CYAN);
 
-							boolean canFindMove = false;
-							// Check all the spots the selected piece could potentially move
-							for (int checkCol = 0; checkCol <= 7; checkCol++) {
-								for (int checkRow = 0; checkRow <= 7; checkRow++) {
-									Move canMove = new Move(fromRow, fromCol, checkRow, checkCol);
-									// If piece can move there but can be taken, color tile red. Otherwise, color orange.
-									if (game.isValidMove(canMove)) {
-										canFindMove = true;
-										if (game.inDangerAfterMove(game.currentPlayer(), canMove)) {
-											board[canMove.toRow][canMove.toColumn].setBackground(Color.RED);
-										} else {
-											board[checkRow][checkCol].setBackground(Color.ORANGE);
+								boolean canFindMove = false;
+								// Check all the spots the selected piece could potentially move
+								for (int checkCol = 0; checkCol <= 7; checkCol++) {
+									for (int checkRow = 0; checkRow <= 7; checkRow++) {
+										Move canMove = new Move(fromRow, fromCol, checkRow, checkCol);
+										// If piece can move there but can be taken, color tile red. Otherwise, color orange.
+										if (game.isValidMove(canMove)) {
+											canFindMove = true;
+											if (game.inDangerAfterMove(game.currentPlayer(), canMove)) {
+												board[canMove.toRow][canMove.toColumn].setBackground(Color.RED);
+											} else {
+												board[checkRow][checkCol].setBackground(Color.ORANGE);
+											}
 										}
 									}
 								}
-							}
-							// If a move cannot be found for the selected piece, let the user know why
-							if (!canFindMove) {
-								// Set color
-								board[fromRow][fromCol].setBackground(null);
-								if (game.getState() == GameState.IN_CHECK) {
-									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from being in check.");
-								} else {
-									JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s) or it is not your turn.");
+								// If a move cannot be found for the selected piece, let the user know why
+								if (!canFindMove) {
+									// Set color
+									board[fromRow][fromCol].setBackground(null);
+									if (game.getState() == GameState.IN_CHECK) {
+										JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere that prevents you from being in check.");
+									} else {
+										JOptionPane.showMessageDialog(new JPanel(), "This piece cannot move anywhere, you're likely blocked by another piece(s) or it is not your turn.");
+									}
+									updateBackground();
+									// Set click to one again, so player can immediately choose another tile.
+									click = 1;
 								}
+							}
+							// If second click
+							else if(click%2 == 1) {
 								updateBackground();
-								// Set click to one again, so player can immediately choose another tile.
-								click = 1;
-							}
-						}
-						// If second click
-						else if(click%2 == 1) {
-							updateBackground();
 
-							toRow = row;
-							toCol = col;
-							// Make a move to see if the selected piece can move to the selected coordinates
-							Move m = new Move(fromRow,fromCol,toRow,toCol);
+								toRow = row;
+								toCol = col;
+								// Make a move to see if the selected piece can move to the selected coordinates
+								Move m = new Move(fromRow,fromCol,toRow,toCol);
 
-							// If the piece can move there, move it
-							if(game.isValidMove(m)) {
-								
-								if(game.pieceAt(fromRow, fromCol).type().equals("Pawn") && 
-										(toRow == 0 || toRow == 7)){
-									
-										String input = JOptionPane.showInputDialog(null, "PROMOTION!! which piece" +
-									"Would you like? Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
-										
-										if(!input.contains("[a-zA-Z]")) {
-											int piece = Integer.parseInt(input);
-											
-											while(piece <0 || piece > 3) {
-												input = JOptionPane.showInputDialog(null, "Game cannot continue without" +
-											"a valid choice, Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
-												
-												if(piece >=0 && piece <= 3)												
-													piece = Integer.parseInt(input);
-											}
-											game.promote(piece, m);
-										}
-										
-										
-									
-									
-								}
-								else
+								// If the piece can move there, move it
+								if(game.isValidMove(m)) {
 									game.move(m);
-								
-								displayBoard();
-								// Set Current Turn icon to the correct color
-								if (game.currentPlayer() == Player.BLACK) {
-									currentTurnIcon.setIcon(iconBPawn);
-								} else {
-									currentTurnIcon.setIcon(iconWPawn);
-								}
+									// TODO: Remove these change icon calls, use displayBoard() instead
+									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
+									board[fromRow][fromCol].setIcon(iconBlank);
+									// Set Current Turn icon to the correct color
 
-								// If the game is complete, let the player know someone has won the game
-								if (game.isComplete()) {
-									JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
-									// TODO: Call some sort of reset() method, needs to be made
+									if(game.pieceAt(m.toRow, m.toColumn).type().equals("Pawn") && 
+											(m.toRow == 0 || m.toRow == 7)){
+										int piece = -1;
+										String input = "";
+										while (piece < 0 || piece > 3) {
+											input = JOptionPane.showInputDialog(null, "PROMOTION!! Which piece" +
+													" would you like? Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+											//input = JOptionPane.showInputDialog(null, "Game cannot continue without" +
+											//	"a valid choice, Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+
+											if(Pattern.matches("[0-9]+", input))											
+												piece = Integer.parseInt(input);
+										}
+										game.promote(piece, m);
+										displayBoard();
+										//										String input = JOptionPane.showInputDialog(null, "PROMOTION!! which piece" +
+										//												"Would you like? Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+										//										
+										//										if (!Pattern.matches("[a-zA-Z]+", input)) { // if valid input (0-9)
+										//											piece = Integer.parseInt(input);
+										//
+										//											while (piece < 0 || piece > 3) {
+										//												input = JOptionPane.showInputDialog(null, "Game cannot continue without" +
+										//														"a valid choice, Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
+										//
+										//												if(!Pattern.matches("[a-zA-Z]+", input))											
+										//													piece = Integer.parseInt(input);
+										//											}
+										//											game.promote(piece, m);
+										//											displayBoard();
+									}
+
+									if (game.currentPlayer() == Player.BLACK) {
+										currentTurnIcon.setIcon(iconBPawn);
+									} else {
+										currentTurnIcon.setIcon(iconWPawn);
+									}
+
+									// If the game is complete, let the player know someone has won the game
+									if (game.isComplete()) {
+										JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
+									}
 								}
 							}
 						}
-					}
-			// If the game is over, disable all the buttons until the game is reset.
-			if (game.isComplete()) {
-				for(int row = 0; row <= 7; row++) {
-					for(int col = 0; col <= 7; col++) {
-						board[row][col].setEnabled(false);
+				// If the game is over, disable all the buttons until the game is reset.
+				if (game.isComplete()) {
+					for(int row2 = 0; row2 <= 7; row2++) {
+						for(int col2 = 0; col2 <= 7; col2++) {
+							board[row2][col2].setEnabled(false);
+						}
 					}
 				}
+				click ++;
 			}
-			click ++;
 		}
 	}
 }
