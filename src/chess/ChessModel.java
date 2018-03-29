@@ -26,10 +26,19 @@ public class ChessModel implements IChessModel {
 	private IChessPiece lastToPiece;
 
 	public ChessModel() {
-		isComplete = false;
 		board = new IChessPiece[8][8];
+		reset();
+	}
+
+	public void reset() {
+		isComplete = false;
 		player = Player.WHITE;
 		gameState = GameState.NOT_IN_CHECK;
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				board[r][c] = null;
+			}
+		}
 		// Special pieces for black
 		board[0][0] = new Rook(Player.BLACK);
 		board[0][1] = new Knight(Player.BLACK);
@@ -43,8 +52,8 @@ public class ChessModel implements IChessModel {
 		board[7][0] = new Rook(Player.WHITE);
 		board[7][1] = new Knight(Player.WHITE);
 		board[7][2] = new Bishop(Player.WHITE);
-		board[7][4] = new King(Player.WHITE);
-		board[7][3] = new Queen(Player.WHITE);
+		board[7][3] = new King(Player.WHITE);
+		board[7][4] = new Queen(Player.WHITE);
 		board[7][5] = new Bishop(Player.WHITE);
 		board[7][6] = new Knight(Player.WHITE);
 		board[7][7] = new Rook(Player.WHITE);
@@ -68,20 +77,39 @@ public class ChessModel implements IChessModel {
 		board[6][7] = new Pawn(Player.WHITE);
 	}
 
+	// promotes players pawn
+	public void promote(int piece, Move m) {
+		// TODO I don't think we need to save the move here, since move() does that.
+		// This method should trigger if a pawn moves into the final row.
+		//saveMove(m);
+		//board[m.fromRow][m.fromColumn]= null;
+
+		if(piece == 0)
+			board[m.toRow][m.toColumn] = new Rook(player.next());
+		else if(piece == 1)
+			board[m.toRow][m.toColumn] = new Knight(player.next());
+		else if(piece == 2)
+			board[m.toRow][m.toColumn] = new Bishop(player.next());
+		else if(piece == 3)
+			board[m.toRow][m.toColumn] = new Queen(player.next());
+
+		//player = player.next();
+	}
+
 	// Checks if a given move is valid with the current game board
 	public boolean isValidMove(Move move) {
 		// The piece you are moving must exist
 		if (board[move.fromRow][move.fromColumn] != null) {
 			// It must belong to you (You can't move your opponent's pieces)
-			//if (board[move.fromRow][move.fromColumn].player() == player) { //TODO: For some reason this line breaks everything. Be careful.
-			// Check if the move is valid for the piece at the given coordinates on the board
-			if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
-				// Make sure the move doesn't put themselves in check
-				if (!inCheckAfterMove(move)) {
-					return true;
+			if (board[move.fromRow][move.fromColumn].player() == player) { //TODO: For some reason this line breaks everything. Be careful.
+				// Check if the move is valid for the piece at the given coordinates on the board
+				if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
+					// Make sure the move doesn't put themselves in check
+					if (!inCheckAfterMove(move)) {
+						return true;
+					}
 				}
 			}
-			//}
 		}
 		return false;
 	}
@@ -123,24 +151,6 @@ public class ChessModel implements IChessModel {
 	/*
 	 * Saves the coordinates of the last move.
 	 */
-	
-	// promotes players pawn
-	public void promote(int piece, Move m) {
-		saveMove(m);
-		board[m.fromRow][m.fromColumn]= null;
-		
-		if(piece == 0)
-			board[m.toRow][m.toColumn] = new Rook(player);
-		else if(piece == 1)
-			board[m.toRow][m.toColumn] = new Knight(player);
-		else if(piece == 2)
-			board[m.toRow][m.toColumn] = new Bishop(player);
-		else if(piece == 3)
-			board[m.toRow][m.toColumn] = new Queen(player);
-		
-		player = player.next();
-	}
-	
 	public void saveMove(Move move)
 	{
 		prevFromCol = move.fromColumn;
@@ -243,7 +253,7 @@ public class ChessModel implements IChessModel {
 		}
 		return !canFindMove;
 	}
-	
+
 	/*
 	 * Checks if a given move will put a piece in danger.
 	 */
