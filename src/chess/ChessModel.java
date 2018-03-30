@@ -59,21 +59,23 @@ public class ChessModel implements IChessModel {
 	/* Stores the to piece for the last move */
 	private IChessPiece lastToPiece;
 	
+	/* Stores if the top left rook has moved */
 	private boolean topLeftRookMoved = false;
 	
+	/* Stores if the top right rook has moved */
 	private boolean topRightRookMoved = false;
 	
+	/* Stores if the bottom left rook has moved */
 	private boolean bottomLeftRookMoved = false;
 	
+	/* Stores if the bottom right rook has moved */
 	private boolean bottomRightRookMoved = false;
 	
+	/* Stores if the white king has moved */
 	private boolean whiteKingMoved = false;
 	
+	/* Stores if the black king has moved */
 	private boolean blackKingMoved = false;
-	
-	private boolean whiteCastled = false;
-	
-	private boolean blackCastled = false;
 
 	/******************************************************************
 	 * Basic constructor. Creates a board, and the reset() method
