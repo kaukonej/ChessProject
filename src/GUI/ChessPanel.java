@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
@@ -191,6 +192,7 @@ public class ChessPanel extends JPanel {
 	private class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
+			boolean AIGame = true;
 			JComponent comp = (JComponent) event.getSource();
 			if (comp == resetItem) {
 				game.reset();
@@ -295,6 +297,40 @@ public class ChessPanel extends JPanel {
 									if (game.isComplete()) {
 										JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
 									}
+									
+									if (AIGame == true) {
+										game.aiTurn();
+										displayBoard();
+										
+										// Promotion
+										if(game.pieceAt(m.toRow, m.toColumn).type().equals("Pawn") && 
+												(m.toRow == 0 || m.toRow == 7)){
+											game.promote(3, m);
+											displayBoard();
+										}
+
+										if (game.currentPlayer() == Player.BLACK) {
+											currentTurnIcon.setIcon(iconBPawn);
+										} else {
+											currentTurnIcon.setIcon(iconWPawn);
+										}
+										
+										if (game.inCheck(Player.WHITE)) {
+											JOptionPane.showMessageDialog(new JPanel(), "You're in check, buddy!! (AI)");
+										}
+										if (game.inCheckmate(Player.WHITE)) {
+											JOptionPane.showMessageDialog(new JPanel(), "You're in check, mate!! (AI)");
+											game.setComplete(true);
+										}
+										// If the game is complete, let the player know someone has won the game
+										if (game.isComplete()) {
+											JOptionPane.showMessageDialog(new JPanel(), "The AI won!");
+										}
+									}
+									// AI
+									
+									// check isincheck
+									// check incheckmate
 								}
 							}
 						}
