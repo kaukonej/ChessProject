@@ -251,11 +251,18 @@ public class ChessPanel extends JPanel {
 								// If the piece can move there, move it
 								if(game.isValidMove(m)) {
 									game.move(m);
+									// If move into check
+									if (game.inCheck(game.currentPlayer())) {
+										game.undo();
+									} else {
+										game.nextTurn();
+									}
 									// TODO: Remove these change icon calls, use displayBoard() instead
 									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
 									board[fromRow][fromCol].setIcon(iconBlank);
 									// Set Current Turn icon to the correct color
 
+									// Promotion
 									if(game.pieceAt(m.toRow, m.toColumn).type().equals("Pawn") && 
 											(m.toRow == 0 || m.toRow == 7)){
 										int piece = -1;
@@ -263,29 +270,12 @@ public class ChessPanel extends JPanel {
 										while (piece < 0 || piece > 3) {
 											input = JOptionPane.showInputDialog(null, "PROMOTION!! Which piece" +
 													" would you like? Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
-											//input = JOptionPane.showInputDialog(null, "Game cannot continue without" +
-											//	"a valid choice, Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
 
 											if(Pattern.matches("[0-9]+", input))											
 												piece = Integer.parseInt(input);
 										}
 										game.promote(piece, m);
 										displayBoard();
-										//										String input = JOptionPane.showInputDialog(null, "PROMOTION!! which piece" +
-										//												"Would you like? Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
-										//										
-										//										if (!Pattern.matches("[a-zA-Z]+", input)) { // if valid input (0-9)
-										//											piece = Integer.parseInt(input);
-										//
-										//											while (piece < 0 || piece > 3) {
-										//												input = JOptionPane.showInputDialog(null, "Game cannot continue without" +
-										//														"a valid choice, Rook = 0, Knight = 1, Bishop = 2, Queen = 3");
-										//
-										//												if(!Pattern.matches("[a-zA-Z]+", input))											
-										//													piece = Integer.parseInt(input);
-										//											}
-										//											game.promote(piece, m);
-										//											displayBoard();
 									}
 
 									if (game.currentPlayer() == Player.BLACK) {
@@ -293,7 +283,14 @@ public class ChessPanel extends JPanel {
 									} else {
 										currentTurnIcon.setIcon(iconWPawn);
 									}
-
+									Player checkPlayer = game.currentPlayer();
+									if (game.inCheck(checkPlayer)) {
+										JOptionPane.showMessageDialog(new JPanel(), "You're in check, buddy!!");
+									}
+									if (game.inCheckmate(checkPlayer)) {
+										JOptionPane.showMessageDialog(new JPanel(), "You're in check, mate!!");
+										game.setComplete(true);
+									}
 									// If the game is complete, let the player know someone has won the game
 									if (game.isComplete()) {
 										JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
