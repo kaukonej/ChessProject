@@ -1,6 +1,7 @@
 package chess;
 
 import java.awt.Color;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,6 +18,8 @@ public class ChessModel implements IChessModel {
 	private Player player;
 	private GameState gameState;
 	private boolean isComplete;
+
+	private Move foundMove;
 
 	private int prevFromCol;
 	private int prevFromRow;
@@ -117,22 +120,22 @@ public class ChessModel implements IChessModel {
 	/*
 	 * Checks to see if, after a given move, the current player will be in check.
 	 */
-		private boolean inCheckAfterMove(Move move) {
-			boolean inCheckAfterMove = false;
-			// Save piece in "to" tile, and then move "from" to "to" tile.
-			IChessPiece tempTo = board[move.toRow][move.toColumn];
-			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-			board[move.fromRow][move.fromColumn] = null;
-	
-			// If the current player is in check, method will return true
-			if (inCheck(player)) {
-				inCheckAfterMove = true;
-			}
-			// Undo the move that was made, and return true.
-			board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
-			board[move.toRow][move.toColumn] = tempTo;
-			return inCheckAfterMove;
+	private boolean inCheckAfterMove(Move move) {
+		boolean inCheckAfterMove = false;
+		// Save piece in "to" tile, and then move "from" to "to" tile.
+		IChessPiece tempTo = board[move.toRow][move.toColumn];
+		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+		board[move.fromRow][move.fromColumn] = null;
+
+		// If the current player is in check, method will return true
+		if (inCheck(player)) {
+			inCheckAfterMove = true;
 		}
+		// Undo the move that was made, and return true.
+		board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
+		board[move.toRow][move.toColumn] = tempTo;
+		return inCheckAfterMove;
+	}
 
 	/*
 	 * Move a piece from point A to point B, and check if the player is in checkmate. Also save the move so it may be undone.
@@ -195,7 +198,7 @@ public class ChessModel implements IChessModel {
 			}
 		}
 
-		 // change it so its valid if opponent piece moves to you
+		// change it so its valid if opponent piece moves to you
 		// Search board for pieces
 		for (int c = 0; c <= 7; c++) {
 			for (int r = 0; r <= 7; r++) {
@@ -219,6 +222,29 @@ public class ChessModel implements IChessModel {
 		// If nothing is found, player must not be in check.
 		gameState = GameState.NOT_IN_CHECK;
 		changeTurn(p);
+		return false;
+	}
+
+	// AI method
+	public boolean moveOutOfCheck() {
+		for(int row = 0; row <= 7; row++) {
+			for(int col = 0; col <= 7; col++) {
+				if (board[row][col] != null) {
+					if (board[row][col].player() == Player.BLACK) {
+						for (int r = 0; r <= 7; r++) {
+							for (int c = 0; c <= 7; c++) {
+								Move checkMove = new Move(row, col, r, c);
+								// If any of these moves may be taken, then the player is not checkmated.
+								if (isValidMove(checkMove) && !inCheckAfterMove(checkMove)) {
+									foundMove = checkMove;
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		return false;
 	}
 
@@ -291,45 +317,9 @@ public class ChessModel implements IChessModel {
 		return isValid; // If none of their pieces can get you than it isn't in danger.
 	}
 
-	/*
-	 * Do AI stuff
-	 */
-	public void aiTurn()
+	public boolean isPieceInDanger(Player p)
 	{
-		if(inCheckmate(Player.BLACK))
-		{
-			//getOutOfCheck
-
-		}
-
-		if(isPieceInDanger(Player.BLACK))
-		{
-			//movePieceToSafety
-
-		}
-
-		if(canTakePiece(Player.BLACK))
-		{
-			//takePiece
-
-		}
-
-		if(canPutOpponentInCheck(Player.BLACK))
-		{
-			//putOpponentInCheck
-
-		}
-	}
-
-	/*
-	 * Checks if any piece belonging to a given player is in danger.
-	 */
-	private boolean isPieceInDanger (Player p) {
 		Player opponentType;
-		int toCol = 0;
-		int toRow = 0;
-		int fromCol = 0;
-		int fromRow = 0;
 
 		if (p == Player.WHITE) {
 			opponentType = Player.BLACK;
@@ -337,25 +327,26 @@ public class ChessModel implements IChessModel {
 			opponentType = Player.WHITE;
 		}
 
-		//check board for black/white king, save
 		for (int c = 0; c <= 7; c++) {
 			for (int r = 0; r <= 7; r++) {
 				if (board[r][c] != null) {
-					if (board[r][c].player() == opponentType) {// && board[r][c].player() == p) {
-						fromCol = c;
-						fromRow = r;
-						for (int c2 = 0; c2 <= 7; c2++) {
-							for (int r2 = 0; r2 <= 7; r2++) {
+					if (board[r][c].player() == Player.WHITE) {
+						for (int r2 = 0; r2 <= 7; r2++) {
+							for (int c2 = 0; c2 <= 7; c2++) {
 								if (board[r2][c2] != null) {
-									if (board[r2][c2].player() == p) {
-										toCol = c2;
-										toRow = r2;
-										// make a move with from for the pieces, and to coords are the king's location
-										Move checkMove = new Move(fromRow, fromCol, toRow, toCol);
-										if (isValidMove(checkMove)) {
-											if (board[toRow][toCol].player() == opponentType) {
-												// if it's a valid move, the king is in check.
-												return true;
+									if (board[r2][c2].player() == Player.BLACK) {
+										Move newMove = new Move(r, c, r2, c2);
+										changeTurn(opponentType);
+										if (isValidMove(newMove)) {
+											for (int r3 = 0; r3 < 8; r3++) {
+												for (int c3 = 0; c3 < 8; c3++) {
+													Move escapeMove = new Move(r2, c2, r3, c3);
+													if (isValidMove(escapeMove) && !inDangerAfterMove(Player.BLACK, escapeMove)) {
+														foundMove = escapeMove;
+														changeTurn(Player.BLACK);
+														return true;
+													}
+												}
 											}
 										}
 									}
@@ -366,21 +357,133 @@ public class ChessModel implements IChessModel {
 				}
 			}
 		}
-		player = p;
 		return false;
+	}
+	public boolean canTakePiece(Player p)
+	{
+		Player opponentType;
+
+		if (p == Player.WHITE) {
+			opponentType = Player.BLACK;
+		} else {
+			opponentType = Player.WHITE;
+		}
+
+		for (int c = 0; c <= 7; c++) {
+			for (int r = 0; r <= 7; r++) {
+				if (board[r][c] != null) {
+					if (board[r][c].player() == p) {
+						for (int r2 = 0; r2 <= 7; r2++) {
+							for (int c2 = 0; c2 <= 7; c2++) {
+								Move newMove = new Move(r, c, r2, c2);
+								if (isValidMove(newMove) && board[r2][c2].player() == opponentType) {
+									foundMove = newMove;
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	public boolean canPutOpponentInCheck(Player p)
+	{
+		Player opponentType;
+		boolean canPutInCheck = false;
+		if (p == Player.WHITE) {
+			opponentType = Player.BLACK;
+		} else {
+			opponentType = Player.WHITE;
+		}
+
+		for (int c = 0; c <= 7; c++) {
+			for (int r = 0; r <= 7; r++) {
+				if (board[r][c] != null) {
+					if (board[r][c].player() == p) {
+						for (int r2 = 0; r2 <= 7; r2++) {
+							for (int c2 = 0; c2 <= 7; c2++) {
+								Move testMove = new Move(r, c, r2, c2);
+								if(isValidMove(testMove)) {
+									move(testMove);
+									if (inCheck(opponentType)) {
+										canPutInCheck = true;
+									}
+									undo();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return canPutInCheck;
+	}
+
+	public Move aiMove()
+	{
+		if(inCheck(Player.BLACK))
+		{
+			if (moveOutOfCheck()) {
+				return foundMove;
+			}
+		}
+
+		if(isPieceInDanger(Player.BLACK))
+		{
+			return foundMove;
+		}
+
+		if(canTakePiece(Player.BLACK))
+		{
+			//takePiece
+			return foundMove;
+		}
+
+		if(canPutOpponentInCheck(Player.BLACK))
+		{
+			//putOpponentInCheck
+			return foundMove;
+		}
+
+		// If none of the above pick a random move
+		Random rand = new Random();
+		int num = rand.nextInt(60);
+		int increment = 0;
+		for (int c = 0; c <= 7; c++) {
+			for (int r = 0; r <= 7; r++) {
+				if (board[r][c] != null) {
+					if (board[r][c].player() == Player.BLACK) {
+						for (int r2 = 0; r2 <= 7; r2++) {
+							for (int c2 = 0; c2 <= 7; c2++) {
+								Move newMove = new Move(r, c, r2, c2);
+								changeTurn(Player.BLACK);
+								if(isValidMove(newMove))
+								{
+									foundMove = newMove;
+									if(increment == num)
+									{
+										return foundMove;
+									}
+									increment++;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return foundMove;
+	}
+
+	public void aiTurn()
+	{
+		move(aiMove());
+		nextTurn();
 	}
 
 	// TODO: Promotion, setPiece
-
-	public boolean canTakePiece(Player p)
-	{
-		return false;
-	}
-
-	public boolean canPutOpponentInCheck(Player p)
-	{
-		return false;
-	}
 
 	public enum GameState {
 		IN_CHECK, NOT_IN_CHECK;
@@ -414,7 +517,7 @@ public class ChessModel implements IChessModel {
 	public GameState getState() {
 		return gameState;
 	}
-	
+
 	public void setComplete(boolean flag) {
 		isComplete = flag;
 	}
