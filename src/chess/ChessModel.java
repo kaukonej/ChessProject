@@ -105,9 +105,9 @@ public class ChessModel implements IChessModel {
 				// Check if the move is valid for the piece at the given coordinates on the board
 				if (board[move.fromRow][move.fromColumn].isValidMove(move, board)) {
 					// Make sure the move doesn't put themselves in check
-					if (!inCheckAfterMove(move)) {
-						return true;
-					}
+					//if (!inCheckAfterMove(move)) {
+					return true;
+					//}
 				}
 			}
 		}
@@ -117,22 +117,22 @@ public class ChessModel implements IChessModel {
 	/*
 	 * Checks to see if, after a given move, the current player will be in check.
 	 */
-	private boolean inCheckAfterMove(Move move) {
-		boolean inCheckAfterMove = false;
-		// Save piece in "to" tile, and then move "from" to "to" tile.
-		IChessPiece tempTo = board[move.toRow][move.toColumn];
-		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-		board[move.fromRow][move.fromColumn] = null;
-
-		// If the current player is in check, method will return true
-		if (inCheck(player)) {
-			inCheckAfterMove = true;
+		private boolean inCheckAfterMove(Move move) {
+			boolean inCheckAfterMove = false;
+			// Save piece in "to" tile, and then move "from" to "to" tile.
+			IChessPiece tempTo = board[move.toRow][move.toColumn];
+			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+			board[move.fromRow][move.fromColumn] = null;
+	
+			// If the current player is in check, method will return true
+			if (inCheck(player)) {
+				inCheckAfterMove = true;
+			}
+			// Undo the move that was made, and return true.
+			board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
+			board[move.toRow][move.toColumn] = tempTo;
+			return inCheckAfterMove;
 		}
-		// Undo the move that was made, and return true.
-		board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
-		board[move.toRow][move.toColumn] = tempTo;
-		return inCheckAfterMove;
-	}
 
 	/*
 	 * Move a piece from point A to point B, and check if the player is in checkmate. Also save the move so it may be undone.
@@ -142,10 +142,6 @@ public class ChessModel implements IChessModel {
 		saveMove(move);
 		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 		board[move.fromRow][move.fromColumn] = null;
-		player = player.next();
-		if (inCheckmate(player)) {
-			isComplete = true;
-		}
 	}
 
 	/*
@@ -199,6 +195,7 @@ public class ChessModel implements IChessModel {
 			}
 		}
 
+		 // change it so its valid if opponent piece moves to you
 		// Search board for pieces
 		for (int c = 0; c <= 7; c++) {
 			for (int r = 0; r <= 7; r++) {
@@ -208,9 +205,11 @@ public class ChessModel implements IChessModel {
 						fromRow = r;
 						// See if any opponent piece can capture your king
 						Move checkMove = new Move(fromRow, fromCol, toRow, toCol);
+						changeTurn(opponentType);
 						if (isValidMove(checkMove)) {
 							// If it's a valid move, the king is in check.
 							gameState = GameState.IN_CHECK;
+							changeTurn(p);
 							return true;
 						}
 					}
@@ -219,6 +218,7 @@ public class ChessModel implements IChessModel {
 		}
 		// If nothing is found, player must not be in check.
 		gameState = GameState.NOT_IN_CHECK;
+		changeTurn(p);
 		return false;
 	}
 
@@ -242,7 +242,7 @@ public class ChessModel implements IChessModel {
 							for (int c = 0; c <= 7; c++) {
 								Move checkMove = new Move(fromRow, fromCol, r, c);
 								// If any of these moves may be taken, then the player is not checkmated.
-								if (isValidMove(checkMove)) {
+								if (isValidMove(checkMove) && !inCheckAfterMove(checkMove)) {
 									canFindMove = true;
 								}
 							}
@@ -277,6 +277,7 @@ public class ChessModel implements IChessModel {
 							move(move);
 							// Test if enemy piece can reach your piece after moving.
 							Move test = new Move(r, c, move.toRow, move.toColumn);
+							changeTurn(opponentType);
 							if (isValidMove(test)) {
 								isValid = true;
 							}
@@ -286,7 +287,7 @@ public class ChessModel implements IChessModel {
 				}
 			}
 		}
-		player = p;
+		changeTurn(p);
 		return isValid; // If none of their pieces can get you than it isn't in danger.
 	}
 
@@ -412,5 +413,23 @@ public class ChessModel implements IChessModel {
 
 	public GameState getState() {
 		return gameState;
+	}
+	
+	public void setComplete(boolean flag) {
+		isComplete = flag;
+	}
+
+	public void changeTurn(Player p)
+	{
+		player = p;
+	}
+
+	public void nextTurn()
+	{
+		if (player == Player.WHITE) {
+			player = Player.BLACK;
+		} else {
+			player = Player.WHITE;
+		}
 	}
 }
