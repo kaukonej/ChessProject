@@ -34,6 +34,11 @@ public class ChessPanel extends JPanel {
 	private JLabel currentTurnLabel;
 	private JLabel currentTurnIcon;
 
+	private JButton TLCastle;
+	private JButton TRCastle;
+	private JButton BLCastle;
+	private JButton BRCastle;
+
 	private ImageIcon iconWPawn;
 	private ImageIcon iconWKnight;
 	private ImageIcon iconWRook;
@@ -57,9 +62,9 @@ public class ChessPanel extends JPanel {
 	private int toRow;
 	private int toCol;
 	private int click;
-	
+
 	boolean firstWon = false;
-	boolean AIGame = true;
+	boolean AIGame;
 
 	private boolean displayCoordinates = false;
 
@@ -124,31 +129,63 @@ public class ChessPanel extends JPanel {
 		loc.insets.bottom = 0;
 		loc.insets.top = 0;
 		add(currentTurnIcon, loc);
-		
+
+		TLCastle = new JButton("TL Cast");
+		loc.gridx = 2;
+		loc.gridy = 9;
+		loc.insets.bottom = 0;
+		loc.insets.top = 0;
+		TLCastle.addActionListener(new ButtonListener());
+		add(TLCastle, loc);
+
+		TRCastle = new JButton("TR Cast");
+		loc.gridx = 3;
+		loc.gridy = 9;
+		loc.insets.bottom = 0;
+		loc.insets.top = 0;
+		TRCastle.addActionListener(new ButtonListener());
+		add(TRCastle, loc);
+
+		BLCastle = new JButton("BL Cast");
+		loc.gridx = 4;
+		loc.gridy = 9;
+		loc.insets.bottom = 0;
+		loc.insets.top = 0;
+		BLCastle.addActionListener(new ButtonListener());
+		add(BLCastle, loc);
+
+		BRCastle = new JButton("BRCast");
+		loc.gridx = 5;
+		loc.gridy = 9;
+		loc.insets.bottom = 0;
+		loc.insets.top = 0;
+		BRCastle.addActionListener(new ButtonListener());
+		add(BRCastle, loc);
+
 		String AIQuestion = "";
-		
-		 while (AIQuestion.length() != 1 || !Pattern.matches("[0,1]", 
-	        		AIQuestion)) {
-	        	AIQuestion = JOptionPane.showInputDialog(null, 
-	        			"Would you like to play an AI game? 0 = Yes, "
-	        			+ "1 = No");
-	        	if (AIQuestion == null) { // If user presses 'Cancel'
-	        		System.exit(1);
-	        	} else if (AIQuestion.length() != 1) {
-	            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
-							+ " a single digit long.");
-	            } else if (!Pattern.matches("[0-1]+", AIQuestion)) {
-	            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
-							+ " a positive integer, using only digits"
-							+ " 0 or 1");
-	            }
-	        }
-	        
-	        if (AIQuestion.equals("0")) {
-	        	AIGame = true;
-	        } else if (AIQuestion.equalsIgnoreCase("1")) {
-	        	AIGame = false;
-	        }
+
+		while (AIQuestion.length() != 1 || !Pattern.matches("[0,1]", 
+				AIQuestion)) {
+			AIQuestion = JOptionPane.showInputDialog(null, 
+					"Would you like to play an AI game? 0 = Yes, "
+							+ "1 = No");
+			if (AIQuestion == null) { // If user presses 'Cancel'
+				System.exit(1);
+			} else if (AIQuestion.length() != 1) {
+				JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+						+ " a single digit long.");
+			} else if (!Pattern.matches("[0-1]+", AIQuestion)) {
+				JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+						+ " a positive integer, using only digits"
+						+ " 0 or 1");
+			}
+		}
+
+		if (AIQuestion.equals("0")) {
+			AIGame = true;
+		} else if (AIQuestion.equals("1")) {
+			AIGame = false;
+		}
 
 		// Add all the icons to the board
 		displayBoard();
@@ -223,36 +260,106 @@ public class ChessPanel extends JPanel {
 			JComponent comp = (JComponent) event.getSource();
 			if (comp == resetItem) {
 				game.reset();
-				
+
 				String AIQuestion = "";
-				
-				 while (AIQuestion.length() != 1 || !Pattern.matches("[0,1]", 
-			        		AIQuestion)) {
-			        	AIQuestion = JOptionPane.showInputDialog(null, 
-			        			"Would you like to play an AI game? 0 = Yes, "
-			        			+ "1 = No");
-			        	if (AIQuestion == null) { // If user presses 'Cancel'
-			        		System.exit(1);
-			        	} else if (AIQuestion.length() != 1) {
-			            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
-									+ " a single digit long.");
-			            } else if (!Pattern.matches("[0-1]+", AIQuestion)) {
-			            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
-									+ " a positive integer, using only digits"
-									+ " 0 or 1");
-			            }
-			        }
-			        
-			        if (AIQuestion.equals("0")) {
-			        	AIGame = true;
-			        } else if (AIQuestion.equalsIgnoreCase("1")) {
-			        	AIGame = false;
-			        }
-				
+
+				while (AIQuestion.length() != 1 || !Pattern.matches("[0,1]", 
+						AIQuestion)) {
+					AIQuestion = JOptionPane.showInputDialog(null, 
+							"Would you like to play an AI game? 0 = Yes, "
+									+ "1 = No");
+					if (AIQuestion == null) { // If user presses 'Cancel'
+						System.exit(1);
+					} else if (AIQuestion.length() != 1) {
+						JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+								+ " a single digit long.");
+					} else if (!Pattern.matches("[0-1]+", AIQuestion)) {
+						JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+								+ " a positive integer, using only digits"
+								+ " 0 or 1");
+					}
+				}
+
+				if (AIQuestion.equals("0")) {
+					AIGame = true;
+				} else if (AIQuestion.equalsIgnoreCase("1")) {
+					AIGame = false;
+				}
+
 				displayBoard();
 				currentTurnIcon.setIcon(iconWPawn);
 			} else if (comp == quitItem) {
 				System.exit(1);
+			} else if (comp == TRCastle ){
+				if (!game.getTR() && !game.getBKing() && game.currentPlayer() == Player.BLACK && game.pieceAt(0, 4) == null && game.pieceAt(0, 5) == null && game.pieceAt(0, 6) == null) {
+					Move rookMove = new Move(0, 7, 0, 5);
+					Move kingMove = new Move(0, 3, 0, 6);
+					game.move(rookMove);
+					game.move(kingMove);
+					displayBoard();
+
+					game.nextTurn();
+					if (game.currentPlayer() == Player.BLACK) {
+						currentTurnIcon.setIcon(iconBPawn);
+					} else {
+						currentTurnIcon.setIcon(iconWPawn);
+					}
+
+				}
+			} else if (comp == TLCastle) {
+				if (!game.getTL() && !game.getBKing() && game.currentPlayer() == Player.BLACK && game.pieceAt(0, 1) == null && game.pieceAt(0, 2) == null) {
+					Move rookMove = new Move(0, 0, 0, 2);
+					Move kingMove = new Move(0, 3, 0, 1);
+					game.move(rookMove);
+					game.move(kingMove);
+					displayBoard();
+
+					game.nextTurn();
+					if (game.currentPlayer() == Player.BLACK) {
+						currentTurnIcon.setIcon(iconBPawn);
+					} else {
+						currentTurnIcon.setIcon(iconWPawn);
+					}
+
+				}
+			} else if (comp == BLCastle) {
+				if (!game.getBL() && !game.getWKing() && game.currentPlayer() == Player.WHITE && game.pieceAt(7, 1) == null && game.pieceAt(7, 2) == null) {
+					Move rookMove = new Move(7, 0, 7, 2);
+					Move kingMove = new Move(7, 3, 7, 1);
+					game.move(rookMove);
+					game.move(kingMove);
+					displayBoard();
+
+					game.nextTurn();
+
+					if (AIGame) {
+						aiTurn();
+					}
+					if (game.currentPlayer() == Player.BLACK) {
+						currentTurnIcon.setIcon(iconBPawn);
+					} else {
+						currentTurnIcon.setIcon(iconWPawn);
+					}
+				}
+			} else if (comp == BRCastle) {
+				if (!game.getBR() && !game.getWKing() && game.currentPlayer() == Player.WHITE && game.pieceAt(7, 4) == null && game.pieceAt(7, 5) == null && game.pieceAt(7, 6) == null) {
+					Move rookMove = new Move(7, 7, 7, 5);
+					Move kingMove = new Move(7, 3, 7, 6);
+					game.move(rookMove);
+					game.move(kingMove);
+					displayBoard();
+
+					game.nextTurn();
+
+					if (AIGame) {
+						aiTurn();
+					}
+					if (game.currentPlayer() == Player.BLACK) {
+						currentTurnIcon.setIcon(iconBPawn);
+					} else {
+						currentTurnIcon.setIcon(iconWPawn);
+					}
+				}
 			} else {
 				// Check button board for which button was pressed
 				for(int row = 0; row <= 7; row++)
@@ -313,8 +420,8 @@ public class ChessPanel extends JPanel {
 										game.nextTurn();
 									}
 									// TODO: Remove these change icon calls, use displayBoard() instead
-//									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-//									board[fromRow][fromCol].setIcon(iconBlank);
+									//									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
+									//									board[fromRow][fromCol].setIcon(iconBlank);
 									displayBoard();
 									// Set Current Turn icon to the correct color
 
@@ -352,36 +459,8 @@ public class ChessPanel extends JPanel {
 										JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
 										firstWon = true;
 									}
-									
-									if (AIGame == true && game.currentPlayer() == Player.BLACK) {
-										game.aiTurn();
-										displayBoard();
-										
-										// Promotion
-										if(game.pieceAt(m.toRow, m.toColumn).type().equals("Pawn") && 
-												(m.toRow == 0 || m.toRow == 7)){
-											game.promote(3, m);
-											displayBoard();
-										}
 
-										if (game.currentPlayer() == Player.BLACK) {
-											currentTurnIcon.setIcon(iconBPawn);
-										} else {
-											currentTurnIcon.setIcon(iconWPawn);
-										}
-										
-										if (game.inCheck(Player.WHITE)) {
-											JOptionPane.showMessageDialog(new JPanel(), "You're in check, buddy!! (AI)");
-										}
-										if (game.inCheckmate(Player.WHITE)) {
-											JOptionPane.showMessageDialog(new JPanel(), "You're in check, mate!! (AI)");
-											game.setComplete(true);
-										}
-										// If the game is complete, let the player know someone has won the game
-										if (game.isComplete() && firstWon == false) {
-											JOptionPane.showMessageDialog(new JPanel(), "The AI won!");
-										}
-									}
+									aiTurn();
 								}
 							}
 						}
@@ -394,6 +473,39 @@ public class ChessPanel extends JPanel {
 					}
 				}
 				click ++;
+			}
+		}
+	}
+
+	private void aiTurn() {
+		if (AIGame == true && game.currentPlayer() == Player.BLACK) {
+			game.aiTurn();
+			displayBoard();
+
+			// Promotion
+			Move AIMove = game.getFoundMove();
+			if(game.pieceAt(AIMove.toRow, AIMove.toColumn).type().equals("Pawn") && 
+					(AIMove.toRow == 0 || AIMove.toRow == 7)){
+				game.promote(3, AIMove);
+				displayBoard();
+			}
+
+			if (game.currentPlayer() == Player.BLACK) {
+				currentTurnIcon.setIcon(iconBPawn);
+			} else {
+				currentTurnIcon.setIcon(iconWPawn);
+			}
+
+			if (game.inCheck(Player.WHITE)) {
+				JOptionPane.showMessageDialog(new JPanel(), "You're in check, buddy!! (AI)");
+			}
+			if (game.inCheckmate(Player.WHITE)) {
+				JOptionPane.showMessageDialog(new JPanel(), "You're in check, mate!! (AI)");
+				game.setComplete(true);
+			}
+			// If the game is complete, let the player know someone has won the game
+			if (game.isComplete() && firstWon == false) {
+				JOptionPane.showMessageDialog(new JPanel(), "The AI won!");
 			}
 		}
 	}
