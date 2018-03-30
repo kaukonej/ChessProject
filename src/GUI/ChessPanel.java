@@ -57,6 +57,9 @@ public class ChessPanel extends JPanel {
 	private int toRow;
 	private int toCol;
 	private int click;
+	
+	boolean firstWon = false;
+	boolean AIGame = true;
 
 	private boolean displayCoordinates = false;
 
@@ -121,6 +124,31 @@ public class ChessPanel extends JPanel {
 		loc.insets.bottom = 0;
 		loc.insets.top = 0;
 		add(currentTurnIcon, loc);
+		
+		String AIQuestion = "";
+		
+		 while (AIQuestion.length() != 1 || !Pattern.matches("[0,1]", 
+	        		AIQuestion)) {
+	        	AIQuestion = JOptionPane.showInputDialog(null, 
+	        			"Would you like to play an AI game? 0 = Yes, "
+	        			+ "1 = No");
+	        	if (AIQuestion == null) { // If user presses 'Cancel'
+	        		System.exit(1);
+	        	} else if (AIQuestion.length() != 1) {
+	            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+							+ " a single digit long.");
+	            } else if (!Pattern.matches("[0-1]+", AIQuestion)) {
+	            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+							+ " a positive integer, using only digits"
+							+ " 0 or 1");
+	            }
+	        }
+	        
+	        if (AIQuestion.equals("0")) {
+	        	AIGame = true;
+	        } else if (AIQuestion.equalsIgnoreCase("1")) {
+	        	AIGame = false;
+	        }
 
 		// Add all the icons to the board
 		displayBoard();
@@ -192,10 +220,35 @@ public class ChessPanel extends JPanel {
 	private class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
-			boolean AIGame = true;
 			JComponent comp = (JComponent) event.getSource();
 			if (comp == resetItem) {
 				game.reset();
+				
+				String AIQuestion = "";
+				
+				 while (AIQuestion.length() != 1 || !Pattern.matches("[0,1]", 
+			        		AIQuestion)) {
+			        	AIQuestion = JOptionPane.showInputDialog(null, 
+			        			"Would you like to play an AI game? 0 = Yes, "
+			        			+ "1 = No");
+			        	if (AIQuestion == null) { // If user presses 'Cancel'
+			        		System.exit(1);
+			        	} else if (AIQuestion.length() != 1) {
+			            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+									+ " a single digit long.");
+			            } else if (!Pattern.matches("[0-1]+", AIQuestion)) {
+			            	JOptionPane.showMessageDialog(new JPanel(), "Input must be"
+									+ " a positive integer, using only digits"
+									+ " 0 or 1");
+			            }
+			        }
+			        
+			        if (AIQuestion.equals("0")) {
+			        	AIGame = true;
+			        } else if (AIQuestion.equalsIgnoreCase("1")) {
+			        	AIGame = false;
+			        }
+				
 				displayBoard();
 				currentTurnIcon.setIcon(iconWPawn);
 			} else if (comp == quitItem) {
@@ -251,7 +304,7 @@ public class ChessPanel extends JPanel {
 								Move m = new Move(fromRow,fromCol,toRow,toCol);
 
 								// If the piece can move there, move it
-								if(game.isValidMove(m)) {
+								if(game.isValidMove(m) && !game.inCheckAfterMove(m)) {
 									game.move(m);
 									// If move into check
 									if (game.inCheck(game.currentPlayer())) {
@@ -260,8 +313,9 @@ public class ChessPanel extends JPanel {
 										game.nextTurn();
 									}
 									// TODO: Remove these change icon calls, use displayBoard() instead
-									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
-									board[fromRow][fromCol].setIcon(iconBlank);
+//									board[toRow][toCol].setIcon(board[fromRow][fromCol].getIcon());
+//									board[fromRow][fromCol].setIcon(iconBlank);
+									displayBoard();
 									// Set Current Turn icon to the correct color
 
 									// Promotion
@@ -296,9 +350,10 @@ public class ChessPanel extends JPanel {
 									// If the game is complete, let the player know someone has won the game
 									if (game.isComplete()) {
 										JOptionPane.showMessageDialog(new JPanel(), "Somebody won!");
+										firstWon = true;
 									}
 									
-									if (AIGame == true) {
+									if (AIGame == true && game.currentPlayer() == Player.BLACK) {
 										game.aiTurn();
 										displayBoard();
 										
@@ -323,14 +378,10 @@ public class ChessPanel extends JPanel {
 											game.setComplete(true);
 										}
 										// If the game is complete, let the player know someone has won the game
-										if (game.isComplete()) {
+										if (game.isComplete() && firstWon == false) {
 											JOptionPane.showMessageDialog(new JPanel(), "The AI won!");
 										}
 									}
-									// AI
-									
-									// check isincheck
-									// check incheckmate
 								}
 							}
 						}
