@@ -6,27 +6,34 @@ import chess.Move;
 import chess.Player;
 
 public class King extends ChessPiece {
-
+	/******************************************************************
+	 * Constructs a King chess piece.
+	 * @param player passed to the parent constructor in ChessPiece.
+	 *****************************************************************/
 	public King(Player player) {
 		super(player);
 		// TODO Auto-generated constructor stub
 	}
-
-	@Override
+	/******************************************************************
+	 *Gives  the types of ChessPiece
+	 *@return A string describing the type of ChessPiece.
+	 *@Override ChessPiece's type method.
+	******************************************************************/
 	public String type() {
 		return "King";
 	}
-
+	
+	/******************************************************************
+	 * Returns a boolean for if the king has a valid move checking
+	 * the move and the board.
+	 * @param Board is passed to check where other pieces are.
+	 * @param Move is passed to check in relation to the board.
+	 *****************************************************************/
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
-		// boolean valid = false;
-		// must utilize method from ChessPiece, add specific functionality here
-		// if move in general is valid
-		// if toRow - fromRow == 1 && toCol == fromCol ||
-		// toCol - ffom == 1,  && to row == from
-		// to row - from == 1 && toCol - from == 1
-		// if true, valid = true
+	
 		if (super.isValidMove(move, board)) {
-			if (Math.abs(move.fromRow - move.toRow) <= 1 && Math.abs(move.fromColumn - move.toColumn) <= 1) {
+			if (Math.abs(move.fromRow - move.toRow) <= 1 &&
+					Math.abs(move.fromColumn - move.toColumn) <= 1) {
 				return true;
 			}
 		}
