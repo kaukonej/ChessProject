@@ -58,6 +58,22 @@ public class ChessModel implements IChessModel {
 
 	/* Stores the to piece for the last move */
 	private IChessPiece lastToPiece;
+	
+	private boolean topLeftRookMoved = false;
+	
+	private boolean topRightRookMoved = false;
+	
+	private boolean bottomLeftRookMoved = false;
+	
+	private boolean bottomRightRookMoved = false;
+	
+	private boolean whiteKingMoved = false;
+	
+	private boolean blackKingMoved = false;
+	
+	private boolean whiteCastled = false;
+	
+	private boolean blackCastled = false;
 
 	/******************************************************************
 	 * Basic constructor. Creates a board, and the reset() method
@@ -77,6 +93,13 @@ public class ChessModel implements IChessModel {
 		isComplete = false;
 		player = Player.WHITE;
 		gameState = GameState.NOT_IN_CHECK;
+		
+	    bottomLeftRookMoved = false;
+	    bottomRightRookMoved = false;
+	    topLeftRookMoved = false;
+	    topRightRookMoved = false;
+	    whiteKingMoved = false;
+	    blackKingMoved = false;
 
 		// Sets the board to all blank spaces
 		for (int row = 0; row < 8; row++) {
@@ -162,6 +185,8 @@ public class ChessModel implements IChessModel {
 				if (board[move.fromRow][move.fromColumn].
 						isValidMove(move, board)) {
 					// Make sure the move doesn't put themselves in check
+					
+					
 					return true;
 				}
 			}
@@ -203,9 +228,88 @@ public class ChessModel implements IChessModel {
 	 *****************************************************************/
 	public void move(Move move) {
 		saveMove(move);
+		// Checks if any of the rooks or kings are the ones making a 
+		// move. If so, disable castling.
+		if (board[move.fromRow][move.fromColumn] != null && 
+				board[move.fromRow][move.fromColumn].type().
+				equals("Rook")) {
+			if (move.fromRow == 0 && move.fromColumn == 0) {
+				topLeftRookMoved = true;
+			} else if (move.fromRow == 0 && move.fromColumn == 7) {
+				topRightRookMoved = true;
+			} else if (move.fromRow == 7 && move.fromColumn == 0) {
+				bottomLeftRookMoved = true;
+			} else if (move.fromRow == 7 && move.fromColumn == 7) {
+				bottomRightRookMoved = true;
+			}
+		} else if (board[move.fromRow][move.fromColumn] != null && 
+				board[move.fromRow][move.fromColumn].type().
+				equals("King")) {
+			if (move.fromRow == 0 && move.fromColumn == 3) {
+				blackKingMoved = true;
+			} else if (move.fromRow == 7 && move.fromColumn == 3) {
+				whiteKingMoved = true;
+			}
+		}
 		board[move.toRow][move.toColumn] = 
 				board[move.fromRow][move.fromColumn];
 		board[move.fromRow][move.fromColumn] = null;
+	}
+	
+	/******************************************************************
+	 * Gets the stored AI move for use in the panel class.
+	 * @return The stored AI move.
+	 *****************************************************************/
+	public Move getFoundMove() {
+		return foundMove;
+	}
+	
+	/******************************************************************
+	 * Returns if the top left rook has moved.
+	 * @return true If it moved.
+	 *****************************************************************/
+	public boolean getTL() {
+		return topLeftRookMoved;
+	}
+	
+	/******************************************************************
+	 * Returns if the top right rook has moved.
+	 * @return true If it moved.
+	 *****************************************************************/
+	public boolean getTR() {
+		return topRightRookMoved;
+	}
+	
+	/******************************************************************
+	 * Returns if the bottom left rook has moved.
+	 * @return true If it moved.
+	 *****************************************************************/
+	public boolean getBL() {
+		return bottomLeftRookMoved;
+	}
+	
+	/******************************************************************
+	 * Returns if the bottom right rook has moved.
+	 * @return true If it moved.
+	 *****************************************************************/
+	public boolean getBR() {
+		return bottomRightRookMoved;
+	}
+	
+	/******************************************************************
+	 * Returns if the white king has moved.
+	 * @return true If it moved.
+	 *****************************************************************/
+	public boolean getWKing() {
+		return whiteKingMoved;
+	}
+	
+	/******************************************************************
+	 * Returns if the black king has moved.
+	 * @return true If it moved.
+	 *****************************************************************/
+	public boolean getBKing() {
+		return blackKingMoved;
 	}
 
 	/******************************************************************
@@ -358,14 +462,14 @@ public class ChessModel implements IChessModel {
 		} else {
 			opponentType = Player.WHITE;
 		}
-		
+
 		// Look for opponent pieces
-		for(int col = 0; col <= 7; col++) { 
-			for(int row = 0; row <= 7; row++) {
+		for(int col = 0; col <= 7; col++)  
+			for(int row = 0; row <= 7; row++) 
 				// If a piece exists at the coordinates
-				if(board[row][col] != null ) { 
+				if(board[row][col] != null )  
 					// If piece belongs to the enemy player
-					if(board[row][col].player() == opponentType) { 
+					if(board[row][col].player() == opponentType)  
 						// If your piece can move to the "to" coords
 						if(board[move.fromRow][move.fromColumn].
 								isValidMove(move, board)) { 
@@ -376,15 +480,13 @@ public class ChessModel implements IChessModel {
 							Move test = new Move(row, col, move.toRow, 
 									move.toColumn);
 							changeTurn(opponentType);
-							if (isValidMove(test)) {
+							if (isValidMove(test)) 
 								isValid = true;
-							}
+							
 							undo(); // Undo your piece's move
 						}
-					}
-				}
-			}
-		}
+
+
 		changeTurn(playerToCheck);
 		return isValid; // If none of their pieces can get you than it 
 		// isn't in danger.
@@ -452,8 +554,8 @@ public class ChessModel implements IChessModel {
 												for (int col3 = 0; col3 
 														< 8; col3++) {
 													Move escapeMove = 
-														new Move(row2, 
-														col2, row3, col3);
+															new Move(row2, 
+																	col2, row3, col3);
 													// Check to make sure that, 
 													// if they can do the move, 
 													// that it actually gets 
@@ -500,7 +602,8 @@ public class ChessModel implements IChessModel {
 								// If it can both reach that location, 
 								// and that location has an enemy, take 
 								// that move.
-								if (isValidMove(newMove) && 
+								if (isValidMove(newMove) && board[row2][col2] 
+										!= null &&
 										board[row2][col2].player() == 
 										opponentType) {
 									foundMove = newMove;
@@ -563,15 +666,15 @@ public class ChessModel implements IChessModel {
 			}
 		}
 
-		// PRIORITY 2: If in danger, move out of danger.
-		// isPieceInDanger call saves the move.
-		if(isPieceInDanger(Player.BLACK))
+		// PRIORITY 2: If computer can take enemy piece, do that move.
+		if(canTakePiece(Player.BLACK))
 		{
 			return foundMove;
 		}
 
-		// PRIORITY 3: If computer can take enemy piece, do that move.
-		if(canTakePiece(Player.BLACK))
+		// PRIORITY 3: If in danger, move out of danger.
+		// isPieceInDanger call saves the move.
+		if(isPieceInDanger(Player.BLACK))
 		{
 			return foundMove;
 		}
